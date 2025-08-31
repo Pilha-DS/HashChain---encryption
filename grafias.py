@@ -1,36 +1,5 @@
 from tabelas import tables, inverted_tables
 
-#variaveis
-pass_s = [{
-    "key" : 7,
-    "a" : "#*#####", "A" : "#*###*#",
-    "b" : "##*####", "B" : "##*##*#",
-    "c" : "###*###", "C" : "###*#*#",
-    "d" : "####*##", "D" : "####**#",
-    "e" : "#####*#", "E" : "#####*#",
-    "f" : "#*##**#", "F" : "#**#**#",
-    "g" : "#*#***#", "G" : "#*****#",
-}, {
-    "key" : 8,
-    "a" : "#*######", "A" : "#*####*#",
-    "b" : "##*#####", "B" : "##*###*#",
-    "c" : "###*####", "C" : "###*##*#",
-    "d" : "####*###", "D" : "####*#*#",
-    "e" : "#####*##", "E" : "#####**#",
-    "f" : "######*#", "F" : "#*####*#",
-    "g" : "#####**#", "G" : "####***#",
-}, {
-    "key" : 9,
-    "a" : "#*#######", "A" : "#*#####*#",
-    "b" : "##*######", "B" : "##*####*#",
-    "c" : "###*#####", "C" : "###*###*#",
-    "d" : "####*####", "D" : "####*##*#",
-    "e" : "#####*###", "E" : "#####*#*#",
-    "f" : "######*##", "F" : "######**#",
-    "g" : "#######*#", "G" : "#*#####*#",
-}
-]
-
 def encurtar(entrada: str):
     saida: str = ""
     return saida
@@ -42,27 +11,46 @@ def desencurtar(entrada: str):
 
 
 def grafar(text_to_crip: str):
+    def pegar_chave_por_index(dicionario, indice):
+        return list(dicionario.keys())[indice]
+
+    def pegar_chave_por_valor(dicionario, valor):
+        for chave, val in dicionario.items():
+            if val == valor:
+                return chave
+
     text_to_crip
-    the_pass = pass_s
+    the_pass = tables
     cripted_text = ""
+    caracteres_invalidos = ""
     keyboard = len(the_pass) - 1
+    print(f"keyboard: {keyboard}")
     x = 0
 
     for t in text_to_crip:
         if x > keyboard:
             x = 0
-            print(f"x1: {x}")
-            cripted_text = cripted_text + " " + the_pass[x][t] + str(the_pass[x]["key"])
-            x += 1
-        else:
-            if t in the_pass[x]:
+            if t in the_pass[pegar_chave_por_index(the_pass, x)]:
+                print(f"x1: {x}")
                 cripted_text = (
-                    cripted_text + " " + the_pass[x][t] + str(the_pass[x]["key"])
+                    cripted_text + " " + the_pass[pegar_chave_por_index(the_pass, x)][t]
                 )
-                print(f"x2: {x}")
-                x += 1
+            else:
+                caracteres_invalidos = caracteres_invalidos + t + "," + " "
+            x += 1
 
-    return cripted_text
+        else:
+            if t in the_pass[pegar_chave_por_index(the_pass, x)]:
+                print(f"x2: {x}")
+                cripted_text = (
+                    cripted_text + " " + the_pass[pegar_chave_por_index(the_pass, x)][t]
+                )
+            else:
+                caracteres_invalidos = caracteres_invalidos + t + "," + " "
+            x += 1
+
+    else:
+        return f"Texto grafado: {text_to_crip} : Grafo: {cripted_text} : Caracteres invalídos ({caracteres_invalidos})"
 
 
 def desgrafar(entrada: str, key: list[int]):
@@ -88,12 +76,13 @@ def desgrafar(entrada: str, key: list[int]):
         repeticoes += 1
         # print(aux, "\n", repeticoes, "\n")
     saida += inverted_tables[key[j]][aux]
-    
+
     print(saida)
     return saida
 
 
 def main():
+    print(grafar("asdasdasdasdsad"))
     pass
 
 
