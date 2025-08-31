@@ -163,9 +163,5 @@ def grafar(text_to_crip: str, passes: [int] = [0]):
         else:
             cripted_text = limpar_grifo(cripted_text, "#*")
             return f"Texto grafado: {text_to_crip} : Grafo: {cripted_text} : Caracteres invalídos ({caracteres_invalidos}) : Os passes usados são: ({passes_usados})"
-        
-#fluxo
-""" while True:
-    text_t = input("Escreva oque quer criptografar: ")
-    print(grafar(text_t)) """
+
     
