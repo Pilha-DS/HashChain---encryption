@@ -1,103 +1,7 @@
-tabelas = {
-    7: {
-        "a": "#*#####",
-        "A": "##*####",
-        "b": "###*###",
-        "B": "####*##",
-        "c": "#####*#",
-        "C": "#**####",
-        "d": "##**###",
-        "D": "###**##",
-        "e": "####**#",
-        "E": "#*#*###",
-        "f": "###*#*#",
-        "F": "##*#*##",
-        "g": "#*##*##",
-        "5": "#*****#",
-    },
-    8: {
-        "a": "#*######",
-        "A": "##*#####",
-        "b": "###*####",
-        "B": "####*###",
-        "c": "#####*##",
-        "C": "######*#",
-        "d": "#**#####",
-        "D": "##**####",
-        "e": "###**###",
-        "E": "####**##",
-        "f": "#####**#",
-        "F": "#*#*####",
-        "g": "##*#*###",
-        "G": "###*#*##",
-        "5": "#*****##",
-    },
-    9: {
-        "a": "#*#######",
-        "A": "##*######",
-        "b": "###*#####",
-        "B": "####*####",
-        "c": "#####*###",
-        "C": "######*##",
-        "d": "#######*#",
-        "D": "#**######",
-        "e": "##**#####",
-        "E": "###**####",
-        "f": "####**###",
-        "F": "#####**##",
-        "g": "######**#",
-        "G": "#*#*#####",
-        "5": "#*****###",
-    },
-    10: {
-        "a": "#*########",
-        "A": "##*#######",
-        "b": "###*######",
-        "B": "####*#####",
-        "c": "#####*####",
-        "C": "######*###",
-        "d": "#######*##",
-        "D": "########*#",
-        "e": "#**#######",
-        "E": "##**######",
-        "f": "###**#####",
-        "F": "####**####",
-        "5": "#*****####",
-    },
-    11: {
-        "a": "#*#########",
-        "A": "##*########",
-        "b": "###*#######",
-        "B": "####*######",
-        "c": "#####*#####",
-        "C": "######*####",
-        "d": "#######*###",
-        "D": "########*##",
-        "e": "#########*#",
-        "E": "#**########",
-        "f": "##**#######",
-        "F": "###**######",
-        "5": "#*****#####",
-    },
-    12: {
-        "a": "#*##########",
-        "A": "##*#########",
-        "b": "###*########",
-        "B": "####*#######",
-        "c": "#####*######",
-        "C": "######*#####",
-        "d": "#######*####",
-        "D": "########*###",
-        "e": "#########*##",
-        "E": "##########*#",
-        "f": "#**#########",
-        "F": "##**########",
-        "5": "#*****######",
-    },
-}
+from tabelas import tables
 
 #Funcões
-def grafar(text_to_crip: str, passes: [int] = [0]):
+def grafar(text_to_crip: str, copia_passes:dict,  passes:list = [0], ):
 
     def pegar_chave_por_index(dicionario, indice):
         return list(dicionario.keys())[indice]
@@ -110,58 +14,60 @@ def grafar(text_to_crip: str, passes: [int] = [0]):
     def limpar_grifo(texto, manter):
         return "".join([c for c in texto if c in manter])
 
-    the_pass = tabelas
-    cripted_text = ""
+    passes_para_usar = copia_passes
+    texto_grafado = ""
     caracteres_invalidos = ""
     passes_usados = ""
-    x = 0
+    pre_index = 0
     
     if passes != [0]:
     #Mandando o passe.
-        xx = 0
+        index_do_passe = 0
         for t in text_to_crip:
-            if xx == passes[-1]:
-                x = 0
-                xx = passes[x]
-                if t in the_pass[xx]:
-                    passes_usados = passes_usados + str(passes[x]) + "," + " "
-                    cripted_text = cripted_text + the_pass[xx][t]
-                    x += 1
+            if index_do_passe == passes[-1]:
+                pre_index = 0
+                index_do_passe = passes[pre_index]
+                if t in passes_para_usar[index_do_passe]:
+                    passes_usados = passes_usados + str(passes[pre_index]) + "," + " "
+                    texto_grafado = texto_grafado + passes_para_usar[index_do_passe][t]
+                    pre_index += 1
                 else:
                     caracteres_invalidos = caracteres_invalidos + t + "," + " "
             else:
-                xx = passes[x]
-                if t in the_pass[xx]:
-                    passes_usados = passes_usados + str(passes[x]) + "," + " "
-                    cripted_text = cripted_text + the_pass[xx][t]
-                    x += 1
+                index_do_passe = passes[pre_index]
+                if t in passes_para_usar[index_do_passe]:
+                    passes_usados = passes_usados + str(passes[pre_index]) + "," + " "
+                    texto_grafado = texto_grafado + passes_para_usar[index_do_passe][t]
+                    pre_index += 1
                 else:
                     caracteres_invalidos = caracteres_invalidos + t + "," + " "
         else:
-            return f"Texto grafado: {text_to_crip} : Grafo: {cripted_text} : Caracteres invalídos ({caracteres_invalidos}) : Os passes usados são: ({passes_usados})"
+            return f"Texto grafado: {text_to_crip} : Grafo: {texto_grafado} : Caracteres invalídos ({caracteres_invalidos}) : Os passes usados são: ({passes_usados})"
         
     #Não mandando o passe.
     else:
-        keyboard = (len(the_pass))
+        keyboard = (len(passes_para_usar))
         print (f"keyboard: {keyboard}")
         for t in text_to_crip:
-            if x == keyboard:
-                x = 0    
-                if t in the_pass[pegar_chave_por_index(the_pass, x)]:
-                    passes_usados = passes_usados + str(pegar_chave_por_index(the_pass, x)) + "," + " "
-                    cripted_text = cripted_text + the_pass[pegar_chave_por_index(the_pass, x)][t]
+            if pre_index == keyboard:
+                pre_index = 0    
+                if t in passes_para_usar[pegar_chave_por_index(passes_para_usar, pre_index)]:
+                    passes_usados = passes_usados + str(pegar_chave_por_index(passes_para_usar, pre_index)) + "," + " "
+                    texto_grafado = texto_grafado + passes_para_usar[pegar_chave_por_index(passes_para_usar, pre_index)][t]
                 else:
                     caracteres_invalidos = caracteres_invalidos + t + "," + " "
-                x += 1  
+                pre_index += 1  
             else:
-                if t in the_pass[pegar_chave_por_index(the_pass, x)]:
-                    passes_usados = passes_usados + str(pegar_chave_por_index(the_pass, x)) + "," + " "
-                    cripted_text = cripted_text + the_pass[pegar_chave_por_index(the_pass, x)][t]
+                if t in passes_para_usar[pegar_chave_por_index(passes_para_usar, pre_index)]:
+                    passes_usados = passes_usados + str(pegar_chave_por_index(passes_para_usar, pre_index)) + "," + " "
+                    texto_grafado = texto_grafado + passes_para_usar[pegar_chave_por_index(passes_para_usar, pre_index)][t]
                 else:
                     caracteres_invalidos = caracteres_invalidos + t + "," + " "
-                x += 1
+                pre_index += 1
         else:
-            cripted_text = limpar_grifo(cripted_text, "#*")
-            return f"Texto grafado: {text_to_crip} : Grafo: {cripted_text} : Caracteres invalídos ({caracteres_invalidos}) : Os passes usados são: ({passes_usados})"
+            texto_grafado = limpar_grifo(texto_grafado, "#*")
+            return f"Texto grafado: {text_to_crip} : Grafo: {texto_grafado} : Caracteres invalídos ({caracteres_invalidos}) : Os passes usados são: ({passes_usados})"
 
-    
+while True:
+    t_text = input("Escreva oque quer criptografar: ")
+    print(grafar)

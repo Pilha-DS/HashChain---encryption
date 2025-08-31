@@ -10,7 +10,7 @@ def desencurtar(entrada: str):
     return saida
 
 
-def grafar(text_to_crip: str, cifras, passes: list[int] = [0]):
+def grafar(text_to_crip: str, cifras, passes:list = [0]):
 
     def pegar_chave_por_index(dicionario, indice):
         return list(dicionario.keys())[indice]
