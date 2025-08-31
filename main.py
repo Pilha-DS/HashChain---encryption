@@ -1,11 +1,11 @@
 from grafias import grafar, desgrafar
-from tabelas import generate_tables
+from tabelas import gerar_tabelas
 
 # desgrafar("texo", keys[7, 8, 9])
 
 def main():
     seed_input: int = int(input("Escolha a seed q deseja usar: "))
-    print(generate_tables(seed=seed_input))
+    print(gerar_tabelas(seed=seed_input))
     
     user_choice: str | None = None
     
