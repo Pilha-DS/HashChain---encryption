@@ -1,4 +1,4 @@
-import tabelas
+import gerador_tabelas
 
 
 #Funcões
@@ -71,7 +71,7 @@ def grafar(passes_a_usar:dict, texto_para_grafar:str = "ameixa", passes:list = [
 while True:
     text_teste = input("Escreva oq quer criptografar: ")
     seed = int(input("Digite a seed: "))
-    chaves = tabelas.gerar_tabelas(seed, 9, 12)
+    chaves = gerador_tabelas.gerar_tabelas(seed, 9, 12)
     grafo = grafar(chaves, text_teste, [0], seed, True)
 
     print(chaves)
