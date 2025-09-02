@@ -14,7 +14,7 @@ def desencurtar(texto: str):
 
 
 def main():
-    desencurtar("")
+    desencurtar(input("txt: "))
     pass
 
 
