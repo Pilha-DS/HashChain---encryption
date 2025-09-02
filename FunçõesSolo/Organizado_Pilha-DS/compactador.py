@@ -1,4 +1,4 @@
-texto_para_compactar = "#########*********###***#*"
+texto_para_compactar = "#*********#######**#***###***##*#######*#***##*###*#**##*###"
 
 def compactar(texto: str = "###***") -> str:
     if not texto:
