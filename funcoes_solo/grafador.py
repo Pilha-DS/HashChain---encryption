@@ -1,8 +1,5 @@
-import gerador_tabelas
-
-
 #Funcão
-def grafar(texto_para_grafar:str = "aaaaaa", dicionario_de_tabelas_passes:dict = {}, passes = 0, limpar:bool = False, pre_seed:int = 00000000): #Função que criptografa o texto desejado.
+def grafar(texto_para_grafar:str = "", dicionario_de_tabelas_passes:dict = {}, passes = 0, limpar:bool = False, pre_seed:int = 00000000): #Função que criptografa o texto desejado.
 
     # funcoes
     def pegar_chave_por_index(dicionario, indice): #Função que pega a chae de um dicionario via index.
@@ -24,7 +21,7 @@ def grafar(texto_para_grafar:str = "aaaaaa", dicionario_de_tabelas_passes:dict =
         index_de_controle = 0
         
         # fluxo
-        if passes != 0: # mandando passe
+        if passes != [0]: # mandando passe
             controle_condicional = 0 
             for t in texto_para_grafar:
                 if controle_condicional == passes[-1]:
@@ -47,7 +44,7 @@ def grafar(texto_para_grafar:str = "aaaaaa", dicionario_de_tabelas_passes:dict =
             else:
                 if limpar == True:
                     texto_grafado = limpar_texto(texto_grafado, "#*")
-                return texto_grafado, passes_usados, caracteres_invalidos, texto_para_grafar, chave_de_controle
+                return texto_grafado, passes_usados, caracteres_invalidos, texto_para_grafar, pre_seed
                     
         else: # nao mandando passe.
             chave_de_controle = (len(dicionario_de_tabelas_passes))
@@ -70,15 +67,8 @@ def grafar(texto_para_grafar:str = "aaaaaa", dicionario_de_tabelas_passes:dict =
             else:
                 if limpar == True:
                     texto_grafado = limpar_texto(texto_grafado, "#*")
-                return texto_grafado, passes_usados, caracteres_invalidos, texto_para_grafar, chave_de_controle, pre_seed
+                print(f"texto_grafado (funcao): {texto_grafado}")
+                return texto_grafado, passes_usados, caracteres_invalidos, texto_para_grafar, pre_seed
+
     else:
         raise TypeError("Tabela de passes esta vazia.")
-    
-while True:
-    text_teste = input("Escreva oq quer criptografar: ")
-    seed = int(input("Digite a seed: "))
-    chaves = gerador_tabelas.gerar_tabelas(seed, 9, 12)
-    grafo = grafar(text_teste, chaves, 0, True, seed)
-
-    print(chaves)
-    print(f"Texto grafado: ({grafo[-3]}) | Grafo: ({grafo[-6]}) | Caracteres invalídos: ({grafo[-4]}) | Os passes usados são: ({grafo[-5]}) | Seed usada é:{grafo[-1]}")
