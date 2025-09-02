@@ -4,6 +4,7 @@ import customtkinter as ctk
 ctk.set_appearance_mode("System")
 ctk.set_default_color_theme("blue")
 
+
 # Funções de exemplo (substitua pela lógica real)
 def encriptar():
     texto = texto_encriptar.get()
