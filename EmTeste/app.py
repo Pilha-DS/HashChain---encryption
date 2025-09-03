@@ -1,95 +1,70 @@
 import customtkinter as ctk
 
-# Configuração inicial
-ctk.set_appearance_mode("System")
-ctk.set_default_color_theme("blue")
+# ===============================
+# Funções
+# ===============================
 
-# Funções de exemplo
-def encriptar():
-    texto = texto_encriptar.get()
-    seed = seed_encriptar.get()
-    passo = passo_encriptar.get()
-    resultado_encriptar.configure(text=f"Encriptado: {texto} | Seed: {seed} | Passo: {passo}")
 
-def descriptar():
-    texto = texto_descriptar.get()
-    seed = seed_descriptar.get()
-    passo = passo_descriptar.get()
-    resultado_descriptar.configure(text=f"Descriptado: {texto} | Seed: {seed} | Passo: {passo}")
+# ===============================
+# Configuração da Janela Principal
+# ===============================
+janela = ctk.CTk()
 
-# Funções para zerar os campos
-def zerar_encriptar():
-    texto_encriptar.delete(0, ctk.END)
-    seed_encriptar.delete(0, ctk.END)
-    passo_encriptar.delete(0, ctk.END)
-    resultado_encriptar.configure(text="")
+# Aparencia
+janela.title("Code-Decode Criptografia")
+janela._set_appearance_mode("system")
 
-def zerar_descriptar():
-    texto_descriptar.delete(0, ctk.END)
-    seed_descriptar.delete(0, ctk.END)
-    passo_descriptar.delete(0, ctk.END)
-    resultado_descriptar.configure(text="")
+# Tamanhos
+janela.geometry("350x550")
+janela.maxsize(width=700, height=1100)
+janela.minsize(width=175, height=275)
 
-# Alternar entre painéis
-def alternar():
-    if switch_var.get() == 1:
-        frame_encriptar.pack_forget()
-        frame_descriptar.pack(fill="both", expand=True, padx=20, pady=20)
-    else:
-        frame_descriptar.pack_forget()
-        frame_encriptar.pack(fill="both", expand=True, padx=20, pady=20)
 
-# Janela principal
-app = ctk.CTk()
-app.geometry("400x600")
-app.title("Encriptador / Descriptador")
+# ===============================
+# Frames Principais
+# ===============================
+frame_principal = ctk.CTkFrame(master=janela)
+frame_principal.pack(pady=15, padx=15, fill="both", expand=True)
 
-# Switch
-switch_var = ctk.IntVar(value=0)
-switch = ctk.CTkSwitch(app, text="Alternar Encriptador/Descriptador", variable=switch_var, command=alternar)
-switch.pack(pady=10)
 
-# ===== FRAME ENCRIPTADOR =====
-frame_encriptar = ctk.CTkFrame(app)
-frame_encriptar.pack(fill="both", expand=True, padx=20, pady=20)
+# Informações (modo criptografar/descriptografar)
+frame_infos = ctk.CTkFrame(master=frame_principal)
+frame_infos.pack(pady=5, padx=5, fill="both", expand=True)
 
-texto_encriptar = ctk.CTkEntry(frame_encriptar, placeholder_text="Texto a encriptar")
-texto_encriptar.pack(fill="x", pady=5)
 
-seed_encriptar = ctk.CTkEntry(frame_encriptar, placeholder_text="Seed")
-seed_encriptar.pack(fill="x", pady=5)
+# Área de entrada/dados
+frame_geral = ctk.CTkFrame(master=frame_principal)
+frame_geral.pack(pady=5, padx=5, fill="both", expand=True)
 
-passo_encriptar = ctk.CTkEntry(frame_encriptar, placeholder_text="Passo")
-passo_encriptar.pack(fill="x", pady=5)
 
-botao_encriptar = ctk.CTkButton(frame_encriptar, text="Encriptar", command=encriptar)
-botao_encriptar.pack(pady=10, fill="x")
+# Área de resultados
+frame_resultados = ctk.CTkFrame(master=frame_principal)
+frame_resultados.pack(pady=5, padx=5, fill="both", expand=True)
 
-botao_zerar_encriptar = ctk.CTkButton(frame_encriptar, text="Zerar Campos", command=zerar_encriptar)
-botao_zerar_encriptar.pack(pady=5, fill="x")
 
-resultado_encriptar = ctk.CTkLabel(frame_encriptar, text="", wraplength=350)
-resultado_encriptar.pack(pady=5, fill="x")
+# ===============================
+# Widgets do Frame de Informações
+# ===============================
+switch_modo = ctk.CTkSwitch(master=frame_infos, text="")
+nome_modo = ctk.CTkLabel(master=frame_infos, text="Cryptografar")
 
-# ===== FRAME DESCRIPTADOR =====
-frame_descriptar = ctk.CTkFrame(app)
+switch_modo.pack(pady=5, padx=5, anchor="nw", fill="both")
+nome_modo.pack(pady=5, padx=5, anchor="center", fill="both")
 
-texto_descriptar = ctk.CTkEntry(frame_descriptar, placeholder_text="Texto a descriptar")
-texto_descriptar.pack(fill="x", pady=5)
 
-seed_descriptar = ctk.CTkEntry(frame_descriptar, placeholder_text="Seed")
-seed_descriptar.pack(fill="x", pady=5)
+# ===============================
+# Widgets Encryptar
+# ===============================
 
-passo_descriptar = ctk.CTkEntry(frame_descriptar, placeholder_text="Passo")
-passo_descriptar.pack(fill="x", pady=5)
 
-botao_descriptar = ctk.CTkButton(frame_descriptar, text="Descriptar", command=descriptar)
-botao_descriptar.pack(pady=10, fill="x")
 
-botao_zerar_descriptar = ctk.CTkButton(frame_descriptar, text="Zerar Campos", command=zerar_descriptar)
-botao_zerar_descriptar.pack(pady=5, fill="x")
+# ===============================
+# Widgets Descryptar
+# ===============================
 
-resultado_descriptar = ctk.CTkLabel(frame_descriptar, text="", wraplength=350)
-resultado_descriptar.pack(pady=5, fill="x")
 
-app.mainloop()
+
+# ===============================
+# Inicialização
+# ===============================
+janela.mainloop()
