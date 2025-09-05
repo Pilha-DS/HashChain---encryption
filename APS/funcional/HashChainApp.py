@@ -1,6 +1,6 @@
 import customtkinter as ctk
 from tkinter import messagebox, scrolledtext, filedialog
-import tabelas
+import tables
 from grafador import grafar
 import random
 from desgrafar import desgrafar
@@ -319,9 +319,9 @@ def executar_criptografia(texto, seed, passo_str):
         
         # Criar tabela
         if passo == [0]:
-            tabela = tabelas.gerar_tabelas(seed_val)
+            tabela = tables.gerar_tabelas(seed_val)
         else:
-            tabela = tabelas.gerar_tabelas(seed_val, menor_passo, maior_passo)
+            tabela = tables.gerar_tabelas(seed_val, menor_passo, maior_passo)
         
         # Criptografar
         grafo = grafar(texto, tabela, passo, True, int(seed_val))
@@ -372,7 +372,7 @@ def executar_descriptografia(texto, modo, seed, passo_str):
             maior_passo = max(passo) if passo else 0
             
             # Criar tabela
-            tabela = tabelas.gerar_tabelas(seed_val, menor_passo, maior_passo)
+            tabela = tables.gerar_tabelas(seed_val, menor_passo, maior_passo)
             
             # Inverter tabela
             t_invertida = {k: {v: kk for kk, v in d.items()} for k, d in tabela.items()}
