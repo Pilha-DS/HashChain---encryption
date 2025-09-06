@@ -6,7 +6,6 @@ def grafar(
     texto_para_grafar: str = "",
     tabelas_passes: dict = {},
     passes=None,
-    limpar: bool = False,
     pre_seed: int = 0
         ):
     """
@@ -30,10 +29,6 @@ def grafar(
         """Pega a chave de um dicionário a partir do índice."""
         return list(dicionario.keys())[indice]
 
-    def limpar_texto(texto, caracteres_para_manter):
-        """Remove caracteres que não estão na lista de permitidos."""
-        return "".join(c for c in texto if c in caracteres_para_manter)
-
     def compactar(texto: str) -> str:
         if not texto:
             return ""
@@ -46,12 +41,20 @@ def grafar(
             if caracter_atual == caracter_anterior:
                 quantidade_atual += 1
             else:
-                texto_compactado += f"{quantidade_atual}{caracter_anterior}"
+                # Se a quantidade for 1, só adiciona o caractere
+                if quantidade_atual > 1:
+                    texto_compactado += f"{quantidade_atual}{caracter_anterior}"
+                else:
+                    texto_compactado += caracter_anterior
                 caracter_anterior = caracter_atual
                 quantidade_atual = 1
 
         # Adiciona o último grupo
-        texto_compactado += f"{quantidade_atual}{caracter_anterior}"
+        if quantidade_atual > 1:
+            texto_compactado += f"{quantidade_atual}{caracter_anterior}"
+        else:
+            texto_compactado += caracter_anterior
+
         return texto_compactado
 
     # ------------------------------
@@ -85,7 +88,7 @@ def grafar(
 
             if t in tabelas_passes[controle_condicional]:
                 passes_usados += str(passes[index_de_controle]) + " "
-                texto_grafado += " " + tabelas_passes[controle_condicional][t]
+                texto_grafado += "" + compactar(tabelas_passes[controle_condicional][t])
                 index_de_controle += 1
             else:
                 caracteres_invalidos += t + ", "
@@ -104,17 +107,11 @@ def grafar(
 
             if t in tabelas_passes[chave_atual]:
                 passes_usados += str(chave_atual) + " "
-                texto_grafado += " " + tabelas_passes[chave_atual][t]
+                texto_grafado += "" + compactar(tabelas_passes[chave_atual][t])
             else:
                 caracteres_invalidos += t + ", "
 
             index_de_controle += 1
-
-    # ------------------------------
-    # Limpeza final (se ativada)
-    # ------------------------------
-    if limpar:
-        texto_grafado = limpar_texto(texto_grafado, "#*")
 
     return texto_grafado, passes_usados, caracteres_invalidos, texto_para_grafar, pre_seed
 

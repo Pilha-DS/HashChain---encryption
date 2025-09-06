@@ -1,4 +1,5 @@
 def desgrafar(entrada: str, key: list[int], cifras: dict):
+
     """
     Descriptografa texto usando o novo sistema de tabelas com início/fim aleatórios.
     
