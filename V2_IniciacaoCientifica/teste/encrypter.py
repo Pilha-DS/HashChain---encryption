@@ -1,7 +1,3 @@
-import tabelas
-seed = 12345678
-tables = tabelas.gerar_tabelas(seed, 9, 24)
-
 def grafar(
     texto_para_grafar: str = "",
     tabelas_passes: dict = {},
@@ -114,5 +110,3 @@ def grafar(
             index_de_controle += 1
 
     return texto_grafado, passes_usados, caracteres_invalidos, texto_para_grafar, pre_seed
-
-print(grafar(texto_para_grafar="ameixa", tabelas_passes=tables, pre_seed=seed))

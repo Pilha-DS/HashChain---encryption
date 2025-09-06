@@ -1,59 +1,21 @@
-aux = "####*****#*#*####***#**###***"
-posicao = 0
-countHas = 0
-countAst = 0
-texto = " "
+norm = "4#5*#*#*4#3*#2*3#3*"
+textF = ""
+numb = 0
 
-# for i in aux:
-#     if i == "#":
-#         countAst = 0
-#         if posicao <= len(aux):
-#             countHas = countHas + 1
-#             posicao = posicao + 1
+for posicao, i in enumerate(norm):
+    if i.isdigit():
+        numb = int(str(numb) + i) if numb else int(i)
 
-#         if countHas >= 2 and (aux[posicao]) != i:
-#             texto = texto + str(countHas)
+        if posicao + 1 < len(norm) and norm[posicao + 1].isdigit():
+            continue
 
-#         if aux[posicao] != i:
-#             texto = texto + i
+        if posicao + 1 < len(norm):
+            textF += norm[posicao + 1] * (numb - 1)
 
-#     else:
-#         countHas = 0
-#         if posicao <= len(aux):
-#             countAst += 1
-#             posicao += 1
-
-#         if countAst >= 2 and (aux[posicao]) != i:
-#             texto = texto + str(countAst)
-
-#         if aux[posicao] != i:
-#             texto = texto + i
-
-while posicao < len(aux):
-    i = aux[posicao]
-
-    if i == "#":
-        countAst = 0
-        countHas += 1
-        if countHas >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
-            texto += str(countHas)
-        if posicao + 1 < len(aux) and aux[posicao + 1] != i:
-            texto += i
-
+        numb = 0
     else:
-        countHas = 0
-        countAst += 1
-        if countAst >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
-            texto += str(countAst)
-        if posicao + 1 < len(aux) and aux[posicao + 1] != i:
-            texto += i
+        if numb == 0:
+            textF += i
 
-    posicao += 1
-
-if countHas >= 2:
-    texto += str(countHas) + "#"
-elif countAst >= 2:
-    texto += str(countAst) + "*"
-
-print(texto)
+print(textF)
             

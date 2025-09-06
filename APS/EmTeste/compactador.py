@@ -4,31 +4,6 @@ countHas = 0
 countAst = 0
 texto = " "
 
-# for i in aux:
-#     if i == "#":
-#         countAst = 0
-#         if posicao <= len(aux):
-#             countHas = countHas + 1
-#             posicao = posicao + 1
-
-#         if countHas >= 2 and (aux[posicao]) != i:
-#             texto = texto + str(countHas)
-
-#         if aux[posicao] != i:
-#             texto = texto + i
-
-#     else:
-#         countHas = 0
-#         if posicao <= len(aux):
-#             countAst += 1
-#             posicao += 1
-
-#         if countAst >= 2 and (aux[posicao]) != i:
-#             texto = texto + str(countAst)
-
-#         if aux[posicao] != i:
-#             texto = texto + i
-
 while posicao < len(aux):
     i = aux[posicao]
 
