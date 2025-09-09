@@ -24,7 +24,7 @@ def trocar_modo(prin:list, widget:list, modo_:int ):
         widget[0].configure(fg_color=widget[1], hover_color=widget[2])
 
 # janela princial
-janela.minsize(300, 500)
+janela.minsize(420, 700)
 janela.maxsize(420, 700)
 
 
@@ -38,7 +38,7 @@ frame_principal.pack(pady=10, padx=10, fill="both", expand=True)
 
 # botoes de troca de modo
 frame_botoes = ctk.CTkFrame(frame_principal)
-frame_botoes.place(padx=10, pady=10)
+frame_botoes.pack(padx=10, pady=10)
 
 modo_descrypto = ctk.CTkButton(master=frame_botoes, text="Descryptografar", command=lambda: trocar_modo(prin=[modo_descrypto, "#AC0006", "#00548B", "#6C0004", "#00365A", frame_descrypto], widget=[modo_crypto, "#00548B", "#00365A", frame_crypto], modo_=2))
 modo_crypto = ctk.CTkButton(master=frame_botoes, text="Cryptografar", command=lambda: trocar_modo(prin=[modo_crypto, "#AC0006", "#00548B", "#6C0004", "#00365A", frame_crypto], widget=[modo_descrypto, "#00548B", "#00365A", frame_descrypto], modo_=1))
