@@ -4,6 +4,7 @@ import customtkinter as ctk
 # variaveis
 janela = ctk.CTk()
 modo = 0
+var_opcao = ctk.StringVar(value="manual")
 
 # funcoes
 def trocar_modo(prin:list, widget:list, modo_:int ):
@@ -40,8 +41,8 @@ frame_principal.pack(pady=10, padx=10, fill="both", expand=True)
 frame_botoes = ctk.CTkFrame(frame_principal)
 frame_botoes.pack(padx=10, pady=10)
 
-modo_descrypto = ctk.CTkButton(master=frame_botoes, text="Descryptografar", command=lambda: trocar_modo(prin=[modo_descrypto, "#AC0006", "#00548B", "#6C0004", "#00365A", frame_descrypto], widget=[modo_crypto, "#00548B", "#00365A", frame_crypto], modo_=2))
-modo_crypto = ctk.CTkButton(master=frame_botoes, text="Cryptografar", command=lambda: trocar_modo(prin=[modo_crypto, "#AC0006", "#00548B", "#6C0004", "#00365A", frame_crypto], widget=[modo_descrypto, "#00548B", "#00365A", frame_descrypto], modo_=1))
+modo_descrypto = ctk.CTkButton(master=frame_botoes, text="Descriptografar", command=lambda: trocar_modo(prin=[modo_descrypto, "#AC0006", "#00548B", "#6C0004", "#00365A", frame_descrypto], widget=[modo_crypto, "#00548B", "#00365A", frame_crypto], modo_=2))
+modo_crypto = ctk.CTkButton(master=frame_botoes, text="Criptografar", command=lambda: trocar_modo(prin=[modo_crypto, "#AC0006", "#00548B", "#6C0004", "#00365A", frame_crypto], widget=[modo_descrypto, "#00548B", "#00365A", frame_descrypto], modo_=1))
 
 modo_crypto.configure(fg_color="#00548B", hover_color="#00365A")
 modo_descrypto.configure(fg_color="#00548B", hover_color="#00365A")
@@ -66,13 +67,32 @@ frame_descrypto = ctk.CTkFrame(master=frame_controle)
 frame_descrypto.grid(row=0, column=0, sticky="nsew")
 frame_descrypto.grid_remove()
 
-#------------#
-#---Crypto---#
-#------------#
-text_crypto = ctk.CTkLabel(master=frame_crypto, text="Cryptografar")
-text_crypto.pack(pady=5, padx=5)
+#------------------#
+#---Criptografar---#
+#------------------#
+text_crip = ctk.CTkLabel(frame_crypto, text="Criptografar", font=ctk.CTkFont(size=14, weight="bold"))
+text_crip.pack(padx=5, pady=5)
 
+mod_cript = ctk.CTkRadioButton(frame_crypto, text="Automatico", variable=var_opcao, value="auto", command=lambda: print("ola mundo"))
+mod_cript_ = ctk.CTkRadioButton(frame_crypto, text="Manual", variable=var_opcao, value="manual", command=lambda: print("ola mundo"))
 
+mod_cript.pack(pady=5, padx=5, anchor="w")
+mod_cript_.pack(pady=5, padx=5, anchor="w")
+
+#---------------------#
+#---Descriptografar---#
+#---------------------#
+text_descrip = ctk.CTkLabel(frame_descrypto, text="Descriptografar", font=ctk.CTkFont(size=14, weight="bold"))
+text_descrip.pack(padx=5, pady=5)
+
+mod_descrip = ctk.CTkRadioButton(frame_descrypto, text="Automatico", variable=var_opcao, value="auto", command=lambda: print("ola mundo"))
+mod_descrip_ = ctk.CTkRadioButton(frame_descrypto, text="Manual", variable=var_opcao, value="manual", command=lambda: print("ola mundo"))
+
+mod_descrip.pack(pady=5, padx=5, anchor="w")
+mod_descrip_.pack(pady=5, padx=5, anchor="w")
+
+frame_descrypto_ = ctk.CTkFrame(frame_descrypto)
+frame_descrypto_.pack(pady=5, padx=5, fill="both",  expand=True)
 
 # inicializa aplicação
 janela.mainloop()
