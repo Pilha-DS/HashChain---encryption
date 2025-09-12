@@ -327,7 +327,7 @@ def executar_criptografia(texto, seed, passo_str):
         grafo = grafar(texto, tabela, passo, True, int(seed_val))
         
         # Formatar resultado para exibição
-        resultado_exibicao = f"Texto criptografado:\n{grafo[0]}\n\nSeed: {grafo[-1]}\nPasso: {grafo[1]}"
+        resultado_exibicao = grafo[0]
         
         # Criar informação da chave para salvar em arquivo separado (apenas passo e seed)
         chave_info = f"Passo: {grafo[1]}\nSeed: {grafo[-1]}"
@@ -394,8 +394,8 @@ def executar_descriptografia(texto, modo, seed, passo_str):
 def iniciar_aplicacao():
     global root
     root.title("Sistema de Criptografia")
-    root.geometry("800x600")
-    root.minsize(700, 500)
+    root.geometry("600x700")
+    root.minsize(600, 700)
     
     criar_menu_principal()
     root.mainloop()
