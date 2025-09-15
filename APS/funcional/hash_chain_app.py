@@ -17,21 +17,9 @@ seed_var = ctk.StringVar()
 passo_var = ctk.StringVar()
 texto_var = ctk.StringVar()
 resultado_var = ctk.StringVar()
-modo_var = ctk.StringVar(value="auto")
+modo_var = ctk.StringVar(value="manual")
 cripto_resultado = ""  # Para armazenar o resultado da criptografia
 chave = ""  # armazenar a chave para descriptografia
-
-# Dicionário de ações possíveis
-possiveis_acoes = {
-    "dcri": {"d", "D", "Descriptografar", "descriptografar", "Desgrafar", "desgrafar"},
-    "crip": {"c", "C", "Criptografar", "criptografar", "Grafar", "grafar"},
-    "comp": {"Compactar", "compactar", "com", "Com", "COM"},
-    "desc": {"Descompactar", "descompactar", "des", "Des", "DES"},
-    "sim": {"sim", "SIM", "Sim", "s", "S"},
-    "nao": {"NAO", "NÃO", "Não", "Nao", "nao", "não", "N", "n"},
-    "auto": {"a", "A", "Auto", "auto", "automatica", "Automatica", "AUTO"},
-    "manual": {"M", "m", "Manual", "manual", "MANUAL"}
-}
 
 # Funções auxiliares
 def limpar_frame():
@@ -39,7 +27,7 @@ def limpar_frame():
     if current_frame:
         current_frame.destroy()
     current_frame = ctk.CTkFrame(root)
-    current_frame.pack(fill="both", expand=True, padx=20, pady=20)
+    current_frame.pack(fill="both", expand=True, padx=15, pady=15)
 
 def voltar_menu_principal():
     limpar_frame()
@@ -61,7 +49,7 @@ def mostrar_resultado(titulo, texto, is_cripto=False, chave_info=None):
     if is_cripto:
         cripto_resultado = texto
         chave = chave_info
-        btn_salvar = ctk.CTkButton(current_frame, text="Salvar em Arquivos Separados", 
+        btn_salvar = ctk.CTkButton(current_frame, text="Salvar Arquivos", 
                                   command=salvar_em_arquivos_separados, fg_color="#28a745")
         btn_salvar.pack(pady=5)
     
@@ -395,7 +383,8 @@ def iniciar_aplicacao():
     global root
     root.title("Sistema de Criptografia")
     root.geometry("600x700")
-    root.minsize(600, 700)
+    root.minsize(550, 700)
+    root.maxsize(550, 700)
     
     criar_menu_principal()
     root.mainloop()
