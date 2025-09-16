@@ -382,9 +382,9 @@ def executar_descriptografia(texto, modo, seed, passo_str):
 def iniciar_aplicacao():
     global root
     root.title("Sistema de Criptografia")
-    root.geometry("800x600")
-    root.minsize(600, 700)
-    root.maxsize(600, 700)
+    root.geometry("600x700")
+    root.minsize(550, 700)
+    root.maxsize(550, 700)
     
     criar_menu_principal()
     root.mainloop()
