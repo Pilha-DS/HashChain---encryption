@@ -46,7 +46,6 @@ def gerar_tabelas(seed, inicio=9, fim=24, caracteres=None):
         tables_[tamanho] = tabela
     tables = tables_
     inverted_tables = {k: {v: kk for kk, v in d.items()} for k, d in tables.items()}
-    print(tables_)
     return tables_
 
 def main():
