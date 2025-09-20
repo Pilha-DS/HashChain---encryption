@@ -1,5 +1,6 @@
 # --- Imports ---
 from input_colectors import InputCollector
+# from POOP import HashChain
 
 # Global use.
 Collector: InputCollector = InputCollector
@@ -22,9 +23,9 @@ def descompressao(grafo_comprimido: str) -> str:
 
 # Will handle user input, function calls and the interface (WiP).
 def main():
-    action = Collector.get_action_()
+    """action = Collector.get_action_()
     seed = Collector.get_seed_()
-    passe = Collector.get_passes_()
+    passe = Collector.get_passes_() """
     
 
 # Runs main the function if the "main.py" file is directly executed.

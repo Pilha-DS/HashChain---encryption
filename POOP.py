@@ -4,7 +4,7 @@ class HashChain:
     # Initializes all the atributes.
     def __innit__(self, texto: str | None, hash: str | None, hash_comprimido: str | None, acao: str, seed: int, passe: list[int]):
         def create_compression_dict_():
-            with open("09-9-25/unicode_full.txt", "r", encoding="utf_8") as file:
+            with open("HashChain/gitHash/HashChain---encryption/unicode_full.txt", "r", encoding="utf_8") as file:
                 content = file.read(1_048_576)
             decompress_table: dict[str, str] = {char: f"{n:020b}" for n, char in enumerate(content)}
             return decompress_table
