@@ -14,10 +14,10 @@ def gerar_cifra(seed, tamanho, indice):
     for i in range(tamanho - 2):
         # Escolhe entre '#' ou '*'
         bit = (num >> i) & 1
-        meio.append('#' if bit == 0 else '*')
+        meio.append('0' if bit == 0 else '1')
         print(meio)
     
-    return '#' + ''.join(meio) + '#'
+    return '0' + ''.join(meio) + '1'
 
 def gerar_tabelas(seed, inicio=9, fim=24, caracteres=None):
     global tables
