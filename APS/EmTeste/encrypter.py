@@ -9,7 +9,7 @@ def encrypter(text_to_graph:str = "", dict_tables:dict = {}, pass_:list = [], se
         raise ValueError('(text_to_graph): Expect a text(str) | Exemple: encrypter(text_to_graph = "eggs")')
 
     if seed == 0:
-        s = random.randint(8, 32)
+        s = random.randint(8, 64)
         ss = []
         while s > 0:
             s -= 1
@@ -18,21 +18,21 @@ def encrypter(text_to_graph:str = "", dict_tables:dict = {}, pass_:list = [], se
             else: ss.append(str(random.randint(0, 9)))
         else: seed = int(''.join(ss))
 
-    if dict_tables == {}:
-        # raise ValueError('(dict_table): Expect a cryptography dictionary(dict) | Exemple: encrypter(dict_table = {7 : {"a" = "###***#", "b" = "##*##*#"}, 8 : {"a" = "***###**", "b" = "****####"} } )')
-        dict_tables = gerar_tabelas(seed=seed)
-    
     if pass_ == []:
         p = random.randint(1, len(text_to_graph) )
         # raise ValueError('(pass_): Expect a list of passes | Exemple: encrypter(pass_ = [10, 12, 21, 9, 12])')
         while p > 1:
             p -= 1
-            pass_.append(random.randint(9, 24) ) 
+            pass_.append(random.randint(9, 100) ) 
+
+    if dict_tables == {}:
+        # raise ValueError('(dict_table): Expect a cryptography dictionary(dict) | Exemple: encrypter(dict_table = {7 : {"a" = "###***#", "b" = "##*##*#"}, 8 : {"a" = "***###**", "b" = "****####"} } )')
+        dict_tables = gerar_tabelas(seed, pass_)
     
-    encrypted_text_list, used_passes, invalid_characters_list, key = [], [], [], [] 
+    encrypted_text_list, invalid_characters_list, key = [], [], [] 
     encrypted_text, invalid_characters = "", ""
     control_index = 0
-    control_key = len(list(dict_tables.keys()))
+    control_key = (len(list(dict_tables.keys())) - 1)
 
     def geral(t):
         try:
@@ -44,12 +44,11 @@ def encrypter(text_to_graph:str = "", dict_tables:dict = {}, pass_:list = [], se
         key = list(dict.keys())[index]
         return key
 
-    def key_generator(pass_, seed, salt, scrambler):
+    def key_generator(pass_, seed):
         key = [pass_, [seed]]
         return key
 
-    print(dict_tables)
-    print(pass_)
+    print("passes que ira usar: ", pass_)
     for t in text_to_graph:
         if control_index == control_key:
             geral(t)
@@ -57,9 +56,13 @@ def encrypter(text_to_graph:str = "", dict_tables:dict = {}, pass_:list = [], se
         else:
             geral(t)
             control_index += 1
+    else:
+        key = key_generator(pass_, seed)
+
 
     encrypted_text = ''.join(encrypted_text_list)
     invalid_characters = ''.join(invalid_characters_list)
     return encrypted_text, key, invalid_characters
 
-print(encrypter(text_to_graph="abacaxi"))
+encry = encrypter(text_to_graph="abacaxi")
+print(encry)
