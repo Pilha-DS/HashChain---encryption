@@ -30,6 +30,7 @@ def encrypter(plaintext:str = "",
               pass_:list = [],
               min_table_leng:int = 20,
               max_table_leng:int = 300,
+              no_salt:bool = False,
               seed:int = 0,
              ) -> list:
     """
@@ -68,6 +69,7 @@ def encrypter(plaintext:str = "",
     
     # Variáveis de estado do processo de criptografia
     ciphertext_list = []
+    ciphertext_list_with_salt = []
     invalid_characters_list = []
     key = []
     control_index = 0
@@ -88,7 +90,7 @@ def encrypter(plaintext:str = "",
             # Registra caracteres não mapeados nas tabelas
             invalid_characters_list.append(caracter)
     
-    def get_key_on_index(index: int) -> int:
+    def get_key_on_index(index:int, dict:dict = dict_tables) -> int:
         """
         Obtém a chave do dicionário com base no índice atual.
         
@@ -98,9 +100,37 @@ def encrypter(plaintext:str = "",
         Returns:
             int: Chave correspondente ao índice
         """
-        return list(dict_tables.keys())[index]
+        return list(dict.keys())[index]
     
-    def key_generator(passes: list, seed_value: int) -> list:
+    def create_salt(list_ciphertext:list = None):
+        """
+        Gera uma chave criptográfica a partir dos passes e seed.
+        
+        Args:
+            list_ciphertext(list): Lista de grafo
+        
+        Returns:
+            list: texto que estava cifrado porem com salt
+        """
+        if not list_ciphertext:
+            raise ValueError("Erro")
+        salt_key = []
+        pa = []
+        list_salt_ciphertext = [n for n in list_ciphertext]
+
+        mac = random.randint(4, 5 + len(list_ciphertext))
+        sacra = mac
+        while sacra > 1:
+            sacra -= 1
+            pa.append(random.randint(min_table_leng, max_table_leng))
+        tab = gerar_tabelas(seed, pa)
+        for n in range((mac - 1)):
+            list_salt_ciphertext.insert(random.randint(0, len(list_ciphertext)), tab[0][pa[n]]["A"])
+
+        salt_key = [pa, mac - 1]
+        return {"salt" : list_salt_ciphertext, "salt_key" : salt_key}
+
+    def key_generator(pass_:list, seed_value:int, salt:list) -> list:
         """
         Gera uma chave criptográfica a partir dos passes e seed.
         
@@ -111,6 +141,7 @@ def encrypter(plaintext:str = "",
         Returns:
             list: Chave gerada formatada
         """
+        passes = [g for g in pass_]
         crude_key = []
         
         # Formata os passes para terem 3 dígitos cada
@@ -130,7 +161,9 @@ def encrypter(plaintext:str = "",
             str(digitos_comprimento)
         ]
         
-        return [''.join(s_key)]
+        supra_key = [passes, [seed], salt]
+        n_key = [''.join(s_key)]
+        return {"key" : n_key, "crude" : supra_key}
 
     # Processo principal de cifragem
     for caracter in plaintext:
@@ -140,24 +173,23 @@ def encrypter(plaintext:str = "",
         else:
             enciphering(caracter)
             control_index += 1
-    
+
+    # Geração do salt e sua chave
+    salt = create_salt(ciphertext_list)
+    ciphertext_list_with_salt = create_salt(ciphertext_list)["salt"]
+
     # Geração da chave final
-    key = key_generator(pass_, seed)
-    
+    key = key_generator(pass_, seed, salt["salt_key"])
     # Construção do texto cifrado final
-    ciphertext = ''.join(ciphertext_list)
     
-    # Limpeza de variáveis sensíveis
-    ciphertext_list.clear()
-    invalid_characters_list.clear()
-    pass_.clear()
-    dict_tables.clear()
+    if no_salt == False:
+        ciphertext = ''.join(ciphertext_list_with_salt)
+    else:
+        ciphertext = ''.join(ciphertext_list)
     
-    return [ciphertext], key, invalid_characters_list
+    return {"poli" : [[ciphertext], key["key"], invalid_characters_list], "crude" : [ciphertext_list, key["crude"], invalid_characters_list]}
 
 # Exemplo de uso
-for i in range(random.randint(1, 10000)):
-    encry = encrypter(plaintext="axabaci", max_table_leng=350)
-    print(encry)
-else:
-    print(i)
+
+encry = encrypter(plaintext="axabaci", max_table_leng=600)
+print(encry["poli"])
