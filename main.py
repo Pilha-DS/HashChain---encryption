@@ -4,7 +4,7 @@ from POOP import HashChainEncryption
 
 # Global use.
 Collector: InputCollector = InputCollector
-HashChain = HashChainEncryption(None, None, None, None, None, None)
+HashChain: HashChainEncryption = HashChainEncryption(None, None, None, None, None, None)
 
 # Will handle user input, function calls and the interface (WiP).
 def main():
