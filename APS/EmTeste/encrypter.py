@@ -14,10 +14,10 @@ def gerar_seed_decimal_aleatoria(num_digitos: int = 256) -> int:
         int: Seed numérica com exatamente num_digitos dígitos
     """
     # Gera bytes aleatórios criptograficamente seguros
-    sorted_bytes = os.urandom(num_digitos // 2)  # Cada byte representa aproximadamente 2 dígitos decimais
+    bytes_aleatorios = os.urandom(num_digitos // 2)  # Cada byte representa aproximadamente 2 dígitos decimais
     
     # Converte os bytes para um inteiro de precisão arbitrária
-    large_number = int.from_bytes(sorted_bytes, 'big')
+    large_number = int.from_bytes(bytes_aleatorios, 'big')
     
     # Formata para garantir exatamente num_digitos dígitos
     seed_str = str(large_number).zfill(num_digitos)
@@ -73,7 +73,7 @@ def encrypter(plaintext:str = "",
     control_index = 0
     control_key = len(list(dict_tables.keys())) - 1
 
-    def enciphering(caracter: str) -> None:
+    def enciphering(caracter:str) -> None:
         """
         Aplica substituição criptográfica usando as tabelas apropriadas.
         
@@ -156,5 +156,8 @@ def encrypter(plaintext:str = "",
     return [ciphertext], key, invalid_characters_list
 
 # Exemplo de uso
-encry = encrypter(plaintext="axabaci")
-print(encry)
+for i in range(random.randint(1, 10000)):
+    encry = encrypter(plaintext="axabaci", max_table_leng=350)
+    print(encry)
+else:
+    print(i)
