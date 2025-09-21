@@ -46,6 +46,16 @@ class HashChainEncryption:
         for char in grafo_comprimido:
             grafo_descomprimido.append(self.decompress_table[char])
         return "".join(grafo_descomprimido)
+        """ if len(grafo_comprimido) >= 50:
+            grafo_descomprimido: list[str] = []
+            for char in grafo_comprimido:
+                grafo_descomprimido.append(self.decompress_table[char])
+            return "".join(grafo_descomprimido)
+        else:
+            grafo_descomprimido: str = ""
+            for char in grafo_comprimido:
+                grafo_descomprimido += self.decompress_table[char]
+            return grafo_descomprimido """
     
     # Receives a text and returns the hashed text.
     def grafar_(texto: str, seed: int, passes: list[int]) -> str:

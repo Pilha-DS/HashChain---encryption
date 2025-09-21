@@ -1,0 +1,1 @@
+HashChain.compressao_(cnt)
