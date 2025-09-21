@@ -71,7 +71,15 @@ def converter_binario_para_texto(lista_binarios):
 # Loop principal para interação com o usuário
 print(f"Tempo de carregamento do arquivo: {tempo_carregamento:.7f} segundos")
 
-while True:
+start_total = time.perf_counter()
+
+for i in range(10000):
+    print(char_to_binary("筒"))
+
+end_total = time.perf_counter()
+print(f" Tempo total: {(end_total - start_total):.7f}s ")
+
+""" while True:
     print("\n" + "="*70)
     print("CONVERSOR UNICODE - BINÁRIO (MÚLTIPLOS CARACTERES)")
     print("="*70)
@@ -204,7 +212,7 @@ while True:
         print("\n╔{'═'*50}╗")
         print("║ {'TESTE DE PERFORMANCE COM MÚLTIPLOS CARACTERES':^48} ║")
         print("╠{'═'*50}╣")
-        
+
         texto_teste = "Hello! 你好! 123 ABC çãó é€ 🐍★"
         print(f"║ Texto de teste: {texto_teste:<30} ║")
         print(f"║ {'─'*48} ║")
@@ -240,4 +248,4 @@ while True:
 
 # Tempo total do programa
 tempo_total = time.perf_counter() - tempo_carregamento
-print(f"\nTempo total de execução do programa: {tempo_total:.7f} segundos")
+print(f"\nTempo total de execução do programa: {tempo_total:.7f} segundos") """
