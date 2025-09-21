@@ -1,5 +1,5 @@
 # HashChain in POOP (Python Object Oriented Programing).
-from typing import Optional
+# from typing import Optional
 
 class HashChainEncryption:
     # Initializes all the atributes.
