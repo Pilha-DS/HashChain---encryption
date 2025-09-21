@@ -1,32 +1,43 @@
 tables = {}
 inverted_tables = {}
 
-def gerar_cifra(seed, tamanho, indice):
-    print(seed)
+def generate_cipher(seed, size, index):
     """
-    Gera cifra determinística.
-    Começo e fim sempre '#', meio calculado de forma única com seed e índice.
+    Generates deterministic cipher.
+    Start and end are always '#', middle is uniquely calculated using seed and index.
     """
-    # Gera um número baseado na seed e índice
-    num = seed + indice * 2654435761
+    # Generates a base number based on seed and index
+    num = seed + index * 2654435761
     
-    meio = []
-    for i in range(tamanho - 2):
-        # Escolhe entre '#' ou '*'
+    middle = []
+    for i in range(size):
+        # Chooses between '0' or '1'
         bit = (num >> i) & 1
-        meio.append('#' if bit == 0 else '*')
-        print(meio)
+        middle.append('0' if bit == 0 else '1')
     
-    return '#' + ''.join(meio) + '#'
+    return ''.join(middle)
 
-def gerar_tabelas(seed, inicio=9, fim=24, caracteres=None):
+def generate_tables(seed, specific_sizes: list = None, characters=None):
+    """
+    Generates cipher tables for specific sizes.
+    
+    Args:
+        seed: Integer number with at least 8 digits
+        specific_sizes: List of specific sizes to generate (ex: [32, 15, 20])
+        characters: List of characters to be encoded
+    """
     global tables
     global inverted_tables
+    
     if not isinstance(seed, int) or seed < 10_000_000:
-        raise ValueError("Seed deve ser um número inteiro com no mínimo 8 dígitos.")
+        raise ValueError("Seed must be an integer with at least 8 digits.")
 
-    if caracteres is None:
-        caracteres = [
+    # If not specified, uses sizes from 9 to 24 (original behavior)
+    if specific_sizes is None:
+        specific_sizes = list(range(9, 25))
+    
+    if characters is None:
+        characters = [
             "a","b","c","d","e","f","g","h","i","j","k","l","m","n","o","p","q","r","s","t",
             "u","v","w","x","y","z",
             "A","B","C","D","E","F","G","H","I","J","K","L","M","N","O","P","Q","R","S","T",
@@ -38,18 +49,13 @@ def gerar_tabelas(seed, inicio=9, fim=24, caracteres=None):
 
     tables_ = {}
 
-    for tamanho in range(inicio, fim+1):
-        tabela = {}
-        # Gera a cifra dos caracteres usando o índice
-        for i, char in enumerate(caracteres):
-            tabela[char] = gerar_cifra(seed, tamanho, i)
-        tables_[tamanho] = tabela
+    for size in specific_sizes:
+        table = {}
+        # Generates character ciphers using the index
+        for i, char in enumerate(characters):
+            table[char] = generate_cipher(seed, size, i)
+        tables_[size] = table
+    
     tables = tables_
-    inverted_tables = {k: {v: kk for kk, v in d.items()} for k, d in tables.items()}
-    return tables_
-
-def main():
-    pass
-
-if __name__ == "__main__":
-    main()
+    inverted_tables = {k: {v: kk for kk, v in d.items()} for k, d in tables_.items()}
+    return tables_, inverted_tables

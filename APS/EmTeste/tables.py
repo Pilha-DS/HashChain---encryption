@@ -10,12 +10,12 @@ def gerar_cifra(seed, tamanho, indice):
     num = seed + indice * 2654435761
     
     meio = []
-    for i in range(tamanho - 2):
+    for i in range(tamanho):
         # Escolhe entre '0' ou '1'
         bit = (num >> i) & 1
         meio.append('0' if bit == 0 else '1')
     
-    return '0' + ''.join(meio) + '1'
+    return ''.join(meio)
 
 def gerar_tabelas(seed, tamanhos_especificos:list = None, caracteres=None):
     """
@@ -23,7 +23,7 @@ def gerar_tabelas(seed, tamanhos_especificos:list = None, caracteres=None):
     
     Args:
         seed: Número inteiro com no mínimo 8 dígitos
-        tamanhos_especificos: Lista de tamanhos específicos para gerar (ex: [10, 15, 20])
+        tamanhos_especificos: Lista de tamanhos específicos para gerar (ex: [32, 15, 20])
         caracteres: Lista de caracteres a serem codificados
     """
     global tables
@@ -57,5 +57,5 @@ def gerar_tabelas(seed, tamanhos_especificos:list = None, caracteres=None):
         tables_[tamanho] = tabela
     
     tables = tables_
-    inverted_tables = {k: {v: kk for kk, v in d.items()} for k, d in tables.items()}
-    return tables_
+    inverted_tables = {k: {v: kk for kk, v in d.items()} for k, d in tables_.items()}
+    return tables_, inverted_tables
