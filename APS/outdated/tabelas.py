@@ -1,7 +1,7 @@
 tables = {}
 inverted_tables = {}
 
-def gerar_cifra(seed, tamanho, indice):
+def generate_cipher(seed, tamanho, indice):
     print(seed)
     """
     Gera cifra determinística.
@@ -42,7 +42,7 @@ def gerar_tabelas(seed, inicio=9, fim=24, caracteres=None):
         tabela = {}
         # Gera a cifra dos caracteres usando o índice
         for i, char in enumerate(caracteres):
-            tabela[char] = gerar_cifra(seed, tamanho, i)
+            tabela[char] = generate_cipher(seed, tamanho, i)
         tables_[tamanho] = tabela
     tables = tables_
     inverted_tables = {k: {v: kk for kk, v in d.items()} for k, d in tables.items()}
