@@ -29,10 +29,9 @@ def encrypter(plaintext:str = "",
               dict_tables:dict = {},
               pass_:list = [],
               min_table_leng:int = 20,
-              max_table_leng:int = 100,
+              max_table_leng:int = 999,
               no_salt:bool = False,
               seed:int = 0,
-              key:str = "",
              ) -> list:
     """
     Criptografa texto utilizando tabelas de substituição geradas deterministicamente.
@@ -49,7 +48,7 @@ def encrypter(plaintext:str = "",
     Raises:
         ValueError: Se o texto plano não for fornecido
     """
-
+    
     # Validação dos parâmetros de entrada
     if not plaintext: 
         raise ValueError('Parâmetro obrigatório: plaintext deve ser uma string não vazia')
@@ -105,8 +104,7 @@ def encrypter(plaintext:str = "",
         for n in range((mac - 1)):
             list_salt_ciphertext.insert(random.randint(0, len(list_ciphertext)), tab[0][pa[n]]["A"])
 
-        pa.append(mac - 1)
-        salt_key = pa
+        salt_key = [pa, mac - 1]
         return {"salt" : list_salt_ciphertext, "salt_key" : salt_key}
 
     def key_generator(pass_:list, seed_value:int, salt:list) -> list:
@@ -127,11 +125,10 @@ def encrypter(plaintext:str = "",
             ''.join(crude_key),
             str(seed_value),
             str(comprimento_total),
-            str(digitos_comprimento),
-            ''.join(str(n) for n in salt)
+            str(digitos_comprimento)
         ]
         
-        supra_key = [passes, [seed], [comprimento_total, digitos_comprimento], salt]
+        supra_key = [passes, [seed], salt]
         n_key = [''.join(s_key)]
         return {"key" : n_key, "crude" : supra_key}
 
@@ -162,5 +159,4 @@ def encrypter(plaintext:str = "",
 # Exemplo de uso
 
 encry = encrypter(plaintext="axabaci", max_table_leng=600)
-print("crude: ",encry["crude"])
-print("pili: ",encry["poli"])
+print(encry["poli"])
