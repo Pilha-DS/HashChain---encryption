@@ -1,4 +1,4 @@
-from APS.outdated.tabelas import tables, inverted_tables
+from APS.outdated.tables import tables, inverted_tables
 
 def encurtar(entrada: str):
     saida: str = ""

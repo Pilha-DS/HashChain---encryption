@@ -1,166 +1,187 @@
-# Imports
-from tables import gerar_tabelas
+
+# ================ IMPORTS NECESSÁRIOS ================#
 import random
 import os
+from tables import gerar_tabelas
 
+# FUNÇÃO PARA GERAR SEED ALEATÓRIA
 def gerar_seed_decimal_aleatoria(num_digitos: int = 256) -> int:
-    """
-    Gera uma seed numérica criptograficamente segura com o número especificado de dígitos.
-    
-    Args:
-        num_digitos (int): Número de dígitos decimais desejados para a seed (padrão: 256)
-    
-    Returns:
-        int: Seed numérica com exatamente num_digitos dígitos
-    """
-    # Gera bytes aleatórios criptograficamente seguros
-    bytes_aleatorios = os.urandom(num_digitos // 2)  # Cada byte representa aproximadamente 2 dígitos decimais
-    
-    # Converte os bytes para um inteiro de precisão arbitrária
+    """Gera seed de 256 caracteres por padrão"""
+    # Gera bytes aleatórios seguros
+    bytes_aleatorios = os.urandom(num_digitos // 2)  # cada byte ≈ 2 dígitos
+
+    # Converte os bytes para inteiro
     large_number = int.from_bytes(bytes_aleatorios, 'big')
-    
-    # Formata para garantir exatamente num_digitos dígitos
+
+    # Formata para garantir exatamente num_digitos
     seed_str = str(large_number).zfill(num_digitos)
-    seed_str = seed_str[:num_digitos]  # Garante o comprimento exato
-    
+    seed_str = seed_str[:num_digitos]
+
     return int(seed_str)
 
-def encrypter(plaintext:str = "",
-              dict_tables:dict = {},
-              pass_:list = [],
-              min_table_leng:int = 20,
-              max_table_leng:int = 100,
-              no_salt:bool = False,
-              seed:int = 0,
-              key:str = "",
-             ) -> list:
+
+# FUNÇÃO ENCRYPTER
+def encrypter(
+    plaintext: str = "",
+    pass_: list = [],
+    seed: int = 0,
+    dict_tables: dict = {},
+    no_salt: bool = False,
+    debug_mode: bool = False,
+    min_table_leng: int = 20,
+    max_table_leng: int = 100,
+) -> list:
     """
     Criptografa texto utilizando tabelas de substituição geradas deterministicamente.
     
     Args:
-        plaintext (str): Texto a ser criptografado
+        plaintext (str): Texto a ser criptografado (obrigatorio)
         dict_tables (dict): Dicionário com tabelas de substituição (opcional)
         pass_ (list): Lista de passes para geração de chave (opcional)
         seed (int): Seed para geração determinística (opcional)
-    
+        dict_tables (list): Tabela de substituição (opicional)
+        no_salt (bool): Gera o cipher text sem salt (opicional)
+        debug_mode (bool): Retornas os valores em modo desenvolvedor a função
+        min_table_leng (int): O tamanho minimo da tabela de substituição (opicional). Não pode sere inferior a (20)
+        max_table_leng (int): O tamanho maximo da tabela de substituição (opicional). Não pode ultrapassar (999)
+
     Returns:
-        list: Lista contendo [texto cifrado, chave, caracteres inválidos]
+        list: Lista contendo [texto cifrado, chave]
     
     Raises:
         ValueError: Se o texto plano não for fornecido
     """
 
-    # Validação dos parâmetros de entrada
-    if not plaintext: 
-        raise ValueError('Parâmetro obrigatório: plaintext deve ser uma string não vazia')
-    
-    # Geração de valores padrão para parâmetros opcionais
+    # Validação dos parâmetros obrigatórios
+    if min_table_leng < 20:
+        min_table_leng = 20
+
+    if not plaintext:
+        raise ValueError("Parâmetro obrigatório: plaintext deve ser uma string não vazia")
+
+    # Geração de valores padrão se não informados
     if not seed:
         seed = gerar_seed_decimal_aleatoria(256)
-    
+
     if not pass_:
-        # Gera passes aleatórios baseados no comprimento do texto
         p = len(plaintext)
         while p > 1:
             p -= 1
             pass_.append(random.randint(min_table_leng, max_table_leng))
-    
+
     if not dict_tables:
-        # Gera tabelas de substituição usando a seed e passes fornecidos
         dict_tables = gerar_tabelas(seed, pass_)[0]
-    
-    # Variáveis de estado do processo de criptografia
-    ciphertext_list = []
-    ciphertext_list_with_salt = []
+
+
+    # Variáveis principais
+    crude_ciphertext_list = []
+    salt_ciphertext_list = []
     invalid_characters_list = []
-    key = []
     control_index = 0
     control_key = len(list(dict_tables.keys())) - 1
 
-    def enciphering(caracter:str) -> None:
+    # Funções internas auxiliares
+    def enciphering(caracter: str) -> None:
+        """Mapeia um caractere para a substituição correspondente"""
         try:
-            # Obtém a substituição da tabela apropriada
             tabela_atual = dict_tables[get_key_on_index(control_index)]
-            ciphertext_list.append(tabela_atual[caracter])
+            crude_ciphertext_list.append(tabela_atual[caracter])
         except KeyError:
-            # Registra caracteres não mapeados nas tabelas
             invalid_characters_list.append(caracter)
-    
-    def get_key_on_index(index:int, dict:dict = dict_tables) -> int:
+
+    def get_key_on_index(index: int, dict: dict = dict_tables) -> int:
+        """Obtém chave pelo índice dentro do dicionário"""
         return list(dict.keys())[index]
-    
-    def create_salt(list_ciphertext:list = None):
-        if not list_ciphertext:
-            raise ValueError("Erro")
-        salt_key = []
-        pa = []
-        list_salt_ciphertext = [n for n in list_ciphertext]
 
-        mac = random.randint(4, 5 + len(list_ciphertext))
-        sacra = mac
-        while sacra > 1:
-            sacra -= 1
-            pa.append(random.randint(min_table_leng, max_table_leng))
-        tab = gerar_tabelas(seed, pa)
-        for n in range((mac - 1)):
-            list_salt_ciphertext.insert(random.randint(0, len(list_ciphertext)), tab[0][pa[n]]["A"])
+    def create_salt(
+        ciphertext_list: list = [],
+        pass_: list = [],
+        seed: int = 0,
+        min_leng: int = 20,
+        max_leng: int = 100,
+    ):
+        """Insere salt no ciphertext para aumentar entropia"""
+        mini, maxi = min_leng, max_leng
+        posicoes = []
 
-        pa.append(mac - 1)
-        salt_key = pa
-        return {"salt" : list_salt_ciphertext, "salt_key" : salt_key}
+        salt_leng = random.randint(2, 2 + len(ciphertext_list))
+        salt_ciphertext_list, salt_passes = [c for c in ciphertext_list], [p for p in pass_]
 
-    def key_generator(pass_:list, seed_value:int, salt:list) -> list:
-        passes = [g for g in pass_]
-        crude_key = []
-        
-        # Formata os passes para terem 3 dígitos cada
-        for p in passes:
-            crude_pass = str(p).zfill(3)
-            crude_key.append(crude_pass)
-        
-        # Calcula metadados para incorporação na chave
-        comprimento_total = len(''.join(crude_key))
-        digitos_comprimento = len(str(comprimento_total))
-        
-        # Combina todos os componentes para formar a chave
-        s_key = [
-            ''.join(crude_key),
-            str(seed_value),
-            str(comprimento_total),
-            str(digitos_comprimento),
-            ''.join(str(n) for n in salt)
-        ]
-        
-        supra_key = [passes, [seed], [comprimento_total, digitos_comprimento], salt]
-        n_key = [''.join(s_key)]
-        return {"key" : n_key, "crude" : supra_key}
+        for _ in range(salt_leng):
+            salt_pass = random.randint(mini, maxi)
+            posicao = random.randint(0, (len(salt_ciphertext_list) - 1))
 
-    # Processo principal de cifragem
+            tb = gerar_tabelas(seed, [salt_pass])
+            salt_passes.insert(posicao, salt_pass)
+            salt_ciphertext_list.insert(posicao, tb[0][salt_pass][chr(random.randint(65, 90))])
+            posicoes.append(posicao)
+
+        return salt_ciphertext_list, salt_passes, posicoes
+
+    def key_generator(pass_: list = [], seed: int = 0, salt: list = []) -> list:
+        """Gera chave polida para descriptografia posterior"""
+        seed_value = str(seed)
+        crude_passes = [p for p in pass_]
+        poli_passes = []
+        poli_salt = [str(s).ljust(10, "0") for s in salt] if salt != [] else []
+
+        for p in crude_passes:
+            poli_passes.append(str(p).zfill(3))
+
+        pl = str(len(poli_passes))
+        lolp = str(len(str(pl))).ljust(3, "0")
+        sl = str(len(seed_value))
+        salt_l = [str(len(salt))] if poli_salt != None else []
+        lol_salt = [str(len(salt_l)).ljust(3, "0")] if salt_l != None else []
+
+        crude_key = (
+            f"\nsalt: lol_salt: {lol_salt}, salt_l: {salt_l}, posições salt: {poli_salt}\n"
+            f"passes: lolp: {[lolp]}, pl: {[pl]}, passes: {poli_passes}\n"
+            f"seed: seed: {[sl]}, seed {[seed_value]}"
+        )
+
+        polished_key = "".join(
+            [
+                "".join(lol_salt),
+                "".join(salt_l),
+                "".join(poli_salt),
+                "".join(lolp),
+                "".join(pl),
+                "".join(poli_passes),
+                "".join(sl),
+                "".join(seed_value),
+            ]
+        )
+
+        return poli_passes, polished_key, crude_key
+
+    # Processo de criptografia
     for caracter in plaintext:
-        if control_index == control_key:
-            enciphering(caracter)
-            control_index = 0
-        else:
-            enciphering(caracter)
-            control_index += 1
+        enciphering(caracter)
+        control_index = 0 if control_index == control_key else control_index + 1
 
-    # Geração do salt e sua chave
-    salt = create_salt(ciphertext_list)
-    ciphertext_list_with_salt = create_salt(ciphertext_list)["salt"]
-
-    # Geração da chave final
-    key = key_generator(pass_, seed, salt["salt_key"])
-    # Construção do texto cifrado final
-    
-    if no_salt == False:
-        ciphertext = ''.join(ciphertext_list_with_salt)
+    if not no_salt:
+        salt = create_salt(crude_ciphertext_list, pass_, seed, 20, 100)
+        salt_ciphertext_list = salt[0]
+        ciphertext = "".join(salt_ciphertext_list)
+        key = key_generator(salt[1], seed, salt[2])
     else:
-        ciphertext = ''.join(ciphertext_list)
-    
-    return {"poli" : [[ciphertext], key["key"], invalid_characters_list], "crude" : [ciphertext_list, key["crude"], invalid_characters_list]}
+        ciphertext = "".join(crude_ciphertext_list)
+        key = key_generator(pass_, seed, [])
 
-# Exemplo de uso
+    # Saída final
+    if debug_mode:
+        return (
+            f"Plaintext: {plaintext}\n"
+            f"Ciphertext: {salt_ciphertext_list if not no_salt else crude_ciphertext_list}\n"
+            f"crude key: {key[2]}\n"
+            f"polished key: {key[1]}\n"
+            f"Invalid characters: {invalid_characters_list}\n"
+        )
+    else:
+        return [ciphertext, key[1]]
 
-encry = encrypter(plaintext="axabaci", max_table_leng=600)
-print("crude: ",encry["crude"])
-print("pili: ",encry["poli"])
+# TESTE RÁPIDO
+if __name__ == "__main__":
+    encry = encrypter(plaintext="axabaci", max_table_leng=600,debug_mode=True, no_salt=False)
+    print(encry)
