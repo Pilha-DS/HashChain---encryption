@@ -1,5 +1,5 @@
 from grafias import grafar, desgrafar
-from tabelas import gerar_tabelas
+from APS.outdated.tables import gerar_tabelas
 
 # desgrafar("texo", keys[7, 8, 9])
 

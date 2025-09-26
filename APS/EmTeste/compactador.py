@@ -1,4 +1,4 @@
-aux = "####*****#*#*####***#**###***"
+aux = "11111000010001010101010101"
 posicao = 0
 countHas = 0
 countAst = 0
@@ -7,7 +7,7 @@ texto = " "
 while posicao < len(aux):
     i = aux[posicao]
 
-    if i == "#":
+    if i == "0":
         countAst = 0
         countHas += 1
         if countHas >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
@@ -26,9 +26,9 @@ while posicao < len(aux):
     posicao += 1
 
 if countHas >= 2:
-    texto += str(countHas) + "#"
+    texto += str(countHas) + "0"
 elif countAst >= 2:
-    texto += str(countAst) + "*"
+    texto += str(countAst) + "1"
 
 print(texto)
             
