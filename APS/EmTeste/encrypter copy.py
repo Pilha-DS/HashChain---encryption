@@ -51,6 +51,15 @@ def encrypter(
     Raises:
         ValueError: Se o texto plano não for fornecido
     """
+    cor = {
+    "pad" : "\033[0;0m",
+    "red" : "\033[1;31m",
+    "gre" : "\033[1;32m",
+    "blu" : "\033[1;34m",
+    "yel" : "\033[1;33m",
+    "mag" : "\033[1;35m",
+    "cya" : "\033[1;36m",
+    }
 
     # Validação dos parâmetros obrigatórios
     if min_table_leng < 20:
@@ -83,11 +92,18 @@ def encrypter(
     # Funções internas auxiliares
     def enciphering(caracter: str) -> None:
         """Mapeia um caractere para a substituição correspondente"""
-        try:
-            tabela_atual = dict_tables[get_key_on_index(control_index)]
-            crude_ciphertext_list.append(tabela_atual[caracter])
-        except KeyError:
-            invalid_characters_list.append(caracter)
+        if debug_mode:
+            try:
+                tabela_atual = dict_tables[get_key_on_index(control_index)]
+                crude_ciphertext_list.append(cor["gre"] + tabela_atual[caracter] + cor["pad"])
+            except KeyError:
+                invalid_characters_list.append(caracter)
+        else:
+            try:
+                tabela_atual = dict_tables[get_key_on_index(control_index)]
+                crude_ciphertext_list.append(tabela_atual[caracter])
+            except KeyError:
+                invalid_characters_list.append(caracter)
 
     def get_key_on_index(index: int, dict: dict = dict_tables) -> int:
         """Obtém chave pelo índice dentro do dicionário"""
@@ -104,40 +120,64 @@ def encrypter(
         mini, maxi = min_leng, max_leng
         posicoes = []
 
-        salt_leng = random.randint(2, 2 + len(ciphertext_list))
-        salt_ciphertext_list, salt_passes = [c for c in ciphertext_list], [p for p in pass_]
+        salt_leng = random.randint(20, 20 + len(ciphertext_list))
+        salt_ciphertext_list,  = [c for c in ciphertext_list], 
 
-        for _ in range(salt_leng):
-            salt_pass = random.randint(mini, maxi)
-            posicao = random.randint(0, (len(salt_ciphertext_list) - 1))
+        if debug_mode:
+            salt_passes = [cor["gre"] + str(p) + cor["pad"] for p in pass_]
+        else:
+            salt_passes = [p for p in pass_]
 
-            tb = gerar_tabelas(seed, [salt_pass])
-            salt_passes.insert(posicao, salt_pass)
-            salt_ciphertext_list.insert(posicao, tb[0][salt_pass][chr(random.randint(65, 90))])
-            posicoes.append(posicao)
+        if debug_mode:
+            for _ in range(salt_leng):
+                salt_pass = random.randint(mini, maxi)
+                posicao = random.randint(0, (len(salt_ciphertext_list) - 1))
+
+                tb = gerar_tabelas(seed, [salt_pass])
+                salt_passes.insert(posicao, (cor["red"] + str(salt_pass).zfill(3) + cor["pad"]))
+                salt_ciphertext_list.insert(posicao, cor["red"] + tb[0][salt_pass][chr(random.randint(65, 90))] + cor["pad"])
+                posicoes.append(cor["yel"] + str(posicao).zfill(10) + cor["pad"])
+        else:
+            for _ in range(salt_leng):
+                salt_pass = random.randint(mini, maxi)
+                posicao = random.randint(0, (len(salt_ciphertext_list) - 1))
+
+                tb = gerar_tabelas(seed, [salt_pass])
+                salt_passes.insert(posicao, salt_pass)
+                salt_ciphertext_list.insert(posicao, tb[0][salt_pass][chr(random.randint(65, 90))])
+                posicoes.append(posicao)
 
         return salt_ciphertext_list, salt_passes, posicoes
 
     def key_generator(pass_: list = [], seed: int = 0, salt: list = []) -> list:
         """Gera chave polida para descriptografia posterior"""
-        seed_value = str(seed)
+
         crude_passes = [p for p in pass_]
         poli_passes = []
-        poli_salt = [str(s).ljust(10, "0") for s in salt] if salt != [] else []
+        poli_salt = [str(s).zfill(10) for s in salt] if salt != [] else ''
 
         for p in crude_passes:
             poli_passes.append(str(p).zfill(3))
 
-        pl = str(len(poli_passes))
-        lolp = str(len(str(pl))).ljust(3, "0")
-        sl = str(len(seed_value))
-        salt_l = [str(len(salt))] if poli_salt != None else []
-        lol_salt = [str(len(salt_l)).ljust(3, "0")] if salt_l != None else []
+        if debug_mode:
+            seed_value = cor["cya"] + str(seed) + cor["pad"]
+            pl = cor["mag"] + str(len(poli_passes)) + cor["pad"]
+            lolp = cor["mag"] + str(len(str(pl))).zfill(3) + cor["pad"]
+            sl = cor["mag"] + str(len(str(seed))) + cor["pad"]
+            salt_l = [cor["mag"] + str(len(salt)) + cor["pad"]] if poli_salt != '' else ''
+            lol_salt = [cor["mag"] + str(len(salt_l[0])).zfill(3) + cor["pad"]] if salt_l != '' else ''
+        else:
+            seed_value = str(seed)
+            pl = str(len(poli_passes))
+            lolp = str(len(str(pl))).zfill(3)
+            sl = str(len(seed_value))
+            salt_l = [str(len(salt))] if poli_salt != '' else ''
+            lol_salt = [str(len(salt_l[0])).zfill(3)] if salt_l != '' else ''
 
         crude_key = (
-            f"\nsalt: lol_salt: {lol_salt}, salt_l: {salt_l}, posições salt: {poli_salt}\n"
-            f"passes: lolp: {[lolp]}, pl: {[pl]}, passes: {poli_passes}\n"
-            f"seed: seed: {[sl]}, seed {[seed_value]}"
+            f"\nsalt: lol_salt: {', '.join(p for p in lol_salt)}, salt_l: {', '.join(p for p in salt_l)}, \nposições salt: {', '.join(p for p in poli_salt)}\n\n"
+            f"passes: lolp: {lolp}, pl: {pl}, \npasses: {', '.join(p for p in poli_passes)}\n\n"
+            f"seed: seed: {sl}, seed {seed_value}"
         )
 
         polished_key = "".join(
@@ -172,16 +212,16 @@ def encrypter(
     # Saída final
     if debug_mode:
         return (
-            f"Plaintext: {plaintext}\n"
-            f"Ciphertext: {salt_ciphertext_list if not no_salt else crude_ciphertext_list}\n"
-            f"crude key: {key[2]}\n"
-            f"polished key: {key[1]}\n"
-            f"Invalid characters: {invalid_characters_list}\n"
+            f"\nPlaintext: {cor["blu"] + plaintext + cor["pad"]}\n\n"
+            f"Ciphertext: {', '.join(p for p in salt_ciphertext_list) if not no_salt else ', '.join(p for p in crude_ciphertext_list)}\n\n"
+            f"crude key: {key[2]}\n\n"
+            f"polished key: {key[1]}\n\n"
+            f"Invalid characters: {invalid_characters_list}\n\n"
         )
     else:
         return [ciphertext, key[1]]
 
 # TESTE RÁPIDO
 if __name__ == "__main__":
-    encry = encrypter(plaintext="axabaci", max_table_leng=600,debug_mode=True, no_salt=False)
+    encry = encrypter(plaintext="axabaci", max_table_leng=600, debug_mode=True, no_salt=False)
     print(encry)
