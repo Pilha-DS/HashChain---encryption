@@ -1,34 +1,34 @@
-aux = "####*****#*#*####***#**###***"
+aux = "101010111111100000111110100000010111000"
 posicao = 0
-countHas = 0
-countAst = 0
+countZero = 0
+countUm = 0
 texto = " "
 
 while posicao < len(aux):
     i = aux[posicao]
 
-    if i == "#":
-        countAst = 0
-        countHas += 1
-        if countHas >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
-            texto += str(countHas)
+    if i == "0":
+        countUm = 0
+        countZero += 1
+        if countZero >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
+            texto += str(countZero)
         if posicao + 1 < len(aux) and aux[posicao + 1] != i:
             texto += i
 
     else:
-        countHas = 0
-        countAst += 1
-        if countAst >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
-            texto += str(countAst)
+        countZero = 0
+        countUm += 1
+        if countUm >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
+            texto += str(countUm)
         if posicao + 1 < len(aux) and aux[posicao + 1] != i:
             texto += i
 
     posicao += 1
 
-if countHas >= 2:
-    texto += str(countHas) + "#"
-elif countAst >= 2:
-    texto += str(countAst) + "*"
+if countZero >= 2:
+    texto += str(countZero) + "0"
+elif countUm >= 2:
+    texto += str(countUm) + "1"
 
 print(texto)
             
