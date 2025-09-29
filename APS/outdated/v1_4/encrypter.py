@@ -25,7 +25,6 @@ def encrypter(
     plaintext: str = "",
     pass_: list = [],
     seed: int = 0,
-    dict_tables: dict = {},
     no_salt: bool = False,
     debug_mode: bool = False,
     min_table_leng: int = 20,
@@ -51,6 +50,8 @@ def encrypter(
     Raises:
         ValueError: Se o texto plano não for fornecido
     """
+    dict_tables = {}
+
     cor = {
     "pad" : "\033[0;0m",
     "red" : "\033[1;31m",
@@ -91,7 +92,7 @@ def encrypter(
 
     # Funções internas auxiliares
     def enciphering(caracter: str) -> None:
-        """Mapeia um caractere para a substituição correspondente"""
+        """Mapeia um caractere para a substituição correspondente na tabela"""
         if debug_mode:
             try:
                 tabela_atual = dict_tables[get_key_on_index(control_index)]
