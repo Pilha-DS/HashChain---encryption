@@ -13,7 +13,7 @@ def generate_cipher(seed, tamanho, indice):
     
     return ''.join(meio) 
 
-def gerar_tabelas(seed, inicio=10, fim=200, caracteres=None):
+def gerar_tabelas(seed, inicio=19, fim=20, caracteres=None):
     global tables
     global inverted_tables
     if not isinstance(seed, int) or seed < 10_000_000:

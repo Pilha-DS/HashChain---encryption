@@ -13,19 +13,22 @@ class HashChainEncryption:
         seed: int, 
         table_keys: list[int]
         ):
-            
+        
+        # Strings
         self.plain_text: str = plain_text
         self.cipher_text: str = cipher_text
         self.compressed_cipher_text: str = compressed_cipher_text
+        
+        # User Action - Outdated
         self.current_user_action: str = current_user_action
         self.seed: int = seed
         self.table_keys: list[int] = table_keys
+        
+        # Tables
         self.decompress_table: dict[str, str] = self.create_compression_dict_()
         self.compress_table: dict[str, str] = {v: k for k, v in self.decompress_table.items()}
         self.cipher_table = gerar_tabelas(seed)
         self.reverse_cipher_table = {k: {v: kk for kk, v in d.items()} for k, d in self.cipher_table.items()}
-        # print(self.cipher_table[20][" "])
-        # print(self.reverse_cipher_table[20]["00000000000000000001"])
         
     @staticmethod
     def create_compression_dict_():
@@ -52,16 +55,6 @@ class HashChainEncryption:
         for char in compressed_cipher_text:
             cipher_text.append(self.decompress_table[char])
         return "".join(cipher_text)
-        """ if len(grafo_comprimido) >= 50:
-            grafo_descomprimido: list[str] = []
-            for char in grafo_comprimido:
-                grafo_descomprimido.append(self.decompress_table[char])
-            return "".join(grafo_descomprimido)
-        else:
-            grafo_descomprimido: str = ""
-            for char in grafo_comprimido:
-                grafo_descomprimido += self.decompress_table[char]
-            return grafo_descomprimido """
     
     # Receives a text and returns the hashed text.
     def encrypt_(self, plain_text: str, table_keys: list[int]) -> str:
