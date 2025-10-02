@@ -11,8 +11,63 @@ class HashChainEncryption:
         self.last_output = None
 
     # Receives a standard hash and retuns a compressed hash.
-    def compression_(self):
-        pass
+    def compression_(self, cipher_text):
+        # TESTE TEMPORARIO
+        compressed = []
+        m = {
+            "0": "a",
+            "1": "b",
+            "2": "c",
+            "3": "d",
+            "4": "e",
+            "5": "f",
+            "6": "g",
+            "7": "h",
+            "8": "i",
+            "9": "j",
+        }
+        """ rep = {
+            "z": "01",
+            "y": "10",
+            "x": "011",
+            "w": "110",
+            "v": "001",
+            "u": "100",
+        } """
+        ocorrencias = 0
+        last = ""
+        for _, char in enumerate(cipher_text):
+            if last == "":
+                last = char
+                ocorrencias += 1
+                continue
+            else:
+                if char == last:
+                    ocorrencias += 1
+                else:
+                    if ocorrencias == 1:
+                        compressed.append(last)
+                        last = char
+                        ocorrencias = 1
+                    elif ocorrencias == 2:
+                        compressed.append(last + last)
+                        last = char
+                        ocorrencias = 1
+                    else:
+                        aux = [m[item] for item in str(ocorrencias)]
+                        compressed.append("".join(aux) + last)
+                        last = char
+                        ocorrencias = 1
+
+        if ocorrencias == 1:
+            compressed.append(last)
+        elif ocorrencias == 2:
+            compressed.append(last + last)
+        else:
+            aux = [m[item] for item in str(ocorrencias)]
+            compressed.append("".join(aux) + last)
+
+        return "".join(compressed)
 
     # Receives a compressed hash and retuns the standard hash.
     def decompression_(self):
@@ -312,7 +367,7 @@ class HashChainEncryption:
 
     # Receives a hashed text and returns the unhashed text.
     def decrypt_(self):
-        def dechaveador(key:str = '', ciphertext:str = ''):
+        def dechaveador(key: str = "", ciphertext: str = ""):
             if not key:
                 raise ValueError("Coloque uma chave valída")
             if not ciphertext:
@@ -320,36 +375,36 @@ class HashChainEncryption:
 
             lol_salt = int(key[0:3])
             index = 3 + lol_salt
-            
+
             salt_l = int(key[3:index])
             posicoes = []
 
             for n in range(0, salt_l):
-                pn = int(key[index:index + 3])
-                index += 3  
-                posicoes.append(int(key[index:index + pn]))
+                pn = int(key[index : index + 3])
+                index += 3
+                posicoes.append(int(key[index : index + pn]))
                 index += pn
-            
-            lol_p = int(key[index:index + 3 ])
-            pl = int(key[index + 3:index + 3 + lol_p])
+
+            lol_p = int(key[index : index + 3])
+            pl = int(key[index + 3 : index + 3 + lol_p])
             passes = []
 
             index += lol_p + 3
             for n in range(0, pl):
-                passes.append(int(key[index:index + 3]))
+                passes.append(int(key[index : index + 3]))
                 index += 3
 
-            sl = int(key[index:index + 3])
-            seed = int(key[index + 3:sl + index + 3])
-            
+            sl = int(key[index : index + 3])
+            seed = int(key[index + 3 : sl + index + 3])
+
             index += sl + 3
 
             ciphertext_list = []
 
             s_index = 0
             for n in range(0, pl):
-                ciphertext_list.append(ciphertext[s_index:passes[n]])
-            
+                ciphertext_list.append(ciphertext[s_index : passes[n]])
+
             pad = -1
             for p in range(0, len(posicoes) - 1):
                 del ciphertext_list[posicoes[pad]]
