@@ -1,18 +1,30 @@
-norm = "1010107150510160103130"
-textF = ""
-numb = 0
-            
-for posicao in norm:
-    
-    if numb + 1 < len(norm) and norm[numb + 1] != posicao:
-        if posicao != "0" and posicao != "1":
-            textF += (int(posicao) - 1) * norm[numb + 1]
-        else:    
-            textF += posicao
-    if numb + 1 == len(norm):
-        textF += norm[-1]
+norm = "101010XZ12X0510160103130"
+trad = {
+    "Z": "0",
+    "X": "1",
+    "2": "2",
+    "3": "3",
+    "4": "4",
+    "5": "5",
+    "6": "6",
+    "7": "7",
+    "8": "8",
+    "9": "9"
+}
 
-    numb += 1
+total = []
+aux = []
+
+for c in norm:
+    if c in ["0", "1"] and not aux:
+        total.append(c)
+    elif c in ["Z", "X", "2","3","4","5","6","7","8","9"]:
+        aux.append(trad[c])
+    else:
+        total.append(c * int("".join(aux)))
+        aux = []
     
-print(textF)
-            
+for i in total:
+    print(len(i))
+print("".join(total))
+print(norm)
