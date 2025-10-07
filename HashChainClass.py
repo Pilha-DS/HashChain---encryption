@@ -10,9 +10,28 @@ class HashChainEncryption:
     def __init__(self):
         self.last_output = None
 
+    def out(self, par=0):
+        if self.last_output is None:
+            print(None)
+            return None
+        
+        match par:
+            case 0:
+                print(self.last_output[0])
+            case 1:
+                print(self.last_output[1])
+            case 2:
+                print(self.last_output[0])
+                print(self.last_output[1])
+            case _:
+                print(self.last_output[0])
+
+        return None
+
     # Receives a standard hash and retuns a compressed hash.
     def compression_(self, cipher_text):
         # TESTE TEMPORARIO
+        """ cipher_text += " "
         compressed = []
         m = {
             "0": "a",
@@ -26,14 +45,7 @@ class HashChainEncryption:
             "8": "i",
             "9": "j",
         }
-        """ rep = {
-            "z": "01",
-            "y": "10",
-            "x": "011",
-            "w": "110",
-            "v": "001",
-            "u": "100",
-        } """
+
         ocorrencias = 0
         last = ""
         for _, char in enumerate(cipher_text):
@@ -59,15 +71,8 @@ class HashChainEncryption:
                         last = char
                         ocorrencias = 1
 
-        if ocorrencias == 1:
-            compressed.append(last)
-        elif ocorrencias == 2:
-            compressed.append(last + last)
-        else:
-            aux = [m[item] for item in str(ocorrencias)]
-            compressed.append("".join(aux) + last)
-
-        return "".join(compressed)
+        return "".join(compressed) """
+        pass
 
     # Receives a compressed hash and retuns the standard hash.
     def decompression_(self):
