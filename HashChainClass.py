@@ -8,6 +8,7 @@ from tables import gerar_tabelas
 class HashChainEncryption:
     # Initializes all the atributes.
     def __init__(self):
+        # Will recieve data in: [compressed_text, key, cipher_text]
         self.last_output = None
 
     def out(self, par=0):
@@ -30,53 +31,101 @@ class HashChainEncryption:
 
     # Receives a standard hash and retuns a compressed hash.
     def compression_(self, cipher_text):
-        # TESTE TEMPORARIO
-        """ cipher_text += " "
-        compressed = []
-        m = {
-            "0": "a",
-            "1": "b",
-            "2": "c",
-            "3": "d",
-            "4": "e",
-            "5": "f",
-            "6": "g",
-            "7": "h",
-            "8": "i",
-            "9": "j",
-        }
+        aux = cipher_text
+        posicao = 0
+        countZero = 0
+        countUm = 0
+        texto = ""
+        caltStr = "10"
 
-        ocorrencias = 0
-        last = ""
-        for _, char in enumerate(cipher_text):
-            if last == "":
-                last = char
-                ocorrencias += 1
-                continue
-            else:
-                if char == last:
-                    ocorrencias += 1
-                else:
-                    if ocorrencias == 1:
-                        compressed.append(last)
-                        last = char
-                        ocorrencias = 1
-                    elif ocorrencias == 2:
-                        compressed.append(last + last)
-                        last = char
-                        ocorrencias = 1
+
+        while posicao < len(aux):
+            i = aux[posicao]
+
+            if i == "0":
+                countUm = 0
+                countZero += 1
+                
+                
+                if countZero >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
+                    caltStr = str(countZero)
+                    if len(caltStr) == 2:
+                        if caltStr[0] == "1":
+                            if caltStr[1] == "0":
+                                texto += "X" + "Z"
+                            else:
+                                texto += "X" + caltStr[1]
+                        elif caltStr[1] == "1":
+                            texto += caltStr[0] + "X"
+                        elif caltStr[1] == "0":
+                            texto += caltStr[0] + "Z"
                     else:
-                        aux = [m[item] for item in str(ocorrencias)]
-                        compressed.append("".join(aux) + last)
-                        last = char
-                        ocorrencias = 1
+                        texto += str(countZero)
+                if posicao + 1 < len(aux) and aux[posicao + 1] != i:
+                    texto += i
 
-        return "".join(compressed) """
-        pass
+            else:
+                countZero = 0
+                countUm += 1
+                
+                if countUm >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
+                    caltStr = str(countUm)
+                    if len(caltStr) == 2:
+                        if caltStr[0] == "1":
+                            if caltStr[1] == "0":
+                                texto += "X" + "Z"
+                            else:
+                                texto += "X" + caltStr[1]
+                        elif caltStr[1] == "1":
+                            texto += caltStr[0] + "X"
+                        elif caltStr[1] == "0":
+                            texto += caltStr[0] + "Z"
+                    else:
+                        texto += str(countUm)
+                if posicao + 1 < len(aux) and aux[posicao + 1] != i:
+                    texto += i
+
+            posicao += 1
+
+        if countZero >= 2:
+            texto += str(countZero) + "0"
+        elif countUm >= 2:
+            texto += str(countUm) + "1"
+
+        return(texto)
+                    
+
 
     # Receives a compressed hash and retuns the standard hash.
-    def decompression_(self):
-        pass
+    def decompression_(self, compressed_cipher_text):
+        norm = compressed_cipher_text
+        trad = {
+            "Z": "0",
+            "X": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "6": "6",
+            "7": "7",
+            "8": "8",
+            "9": "9"
+        }
+
+        total = []
+        aux = []
+
+        for c in norm:
+            if c in ["0", "1"] and not aux:
+                total.append(c)
+            elif c in ["Z", "X", "2","3","4","5","6","7","8","9"]:
+                aux.append(trad[c])
+            else:
+                total.append(c * int("".join(aux)))
+                aux = []
+            
+        return "".join(total)
+
 
     # Receives a text and returns the hashed text.
     def encrypt_(
@@ -367,8 +416,8 @@ class HashChainEncryption:
                 f"Ciphertext: {ciphertext}\n\n"
             )
         else:
-            self.last_output = [ciphertext, key_result[1]]
-            return [ciphertext, key_result[1]]
+            self.last_output = [self.compression_(ciphertext), key_result[1], ciphertext]
+            return [self.compression_(ciphertext), key_result[1]]
 
     # Receives a hashed text and returns the unhashed text.
     def decrypt_(self):

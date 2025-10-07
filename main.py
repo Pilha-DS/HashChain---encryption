@@ -8,7 +8,7 @@ HashChain: HashChainEncryption = HashChainEncryption()
 
 # Will handle user input, function calls and the interface (WiP).
 def main():
-    HashChain.out()
+    pass
     
 # Runs main the function if the "main.py" file is directly executed.
 if __name__ == "__main__":
