@@ -267,3 +267,7 @@ def encrypter(
         )
     else:
         return [ciphertext, key_result[1]]
+    
+enc = encrypter("gays devem morrer")
+
+print(enc)
