@@ -8,29 +8,94 @@ from tables import gerar_tabelas
 class HashChainEncryption:
     # Initializes all the atributes.
     def __init__(self):
-        # Will recieve data in: [compressed_text, key, cipher_text]
-        self.last_output = None
+        # Will recieve data in: [compressed_text, key, cipher_text, plain_text]
+        self._info: list[str] | None = None
 
-    def out(self, par=0):
-        if self.last_output is None:
+    # Prints the desired stored encrypted data
+    def out(self, output: str | int = 0) -> None:
+        # If no encryption has occurred, return None
+        if self._info is None:
             print(None)
+
+        # If the argument is a string interpret it as so
+        elif isinstance(output, str):
+            # Standardizes the argument
+            output = output.lower()
+
+            # Aliases for the keywords
+            plain_text = ["p", "plain", "plain text", "plain_text", "text"]
+            cipher_text = ["c", "cipher", "cipher text", "cipher_text"]
+            compressed_text = [
+                "cc",
+                "compressed",
+                "compressed text",
+                "compressed_text",
+                "compressed cipher text",
+                "compressed_cipher_text",
+                "compressed cipher",
+                "compressed_cipher",
+            ]
+            key = ["key", "pass", "k"]
+
+            # Prints the desired data
+            if output in compressed_text:
+                print(self._info[0])
+            elif output in key:
+                print(self._info[1])
+            elif output in cipher_text:
+                print(self._info[2])
+            elif output in plain_text:
+                print(self._info[3])
+
+        # Else if the argument is an int
+        elif isinstance(output, int):
+            # If the int is in range print the desired data, if it is out of range print all the info
+            if output >= 0 and output <= 3:
+                print(self._info[output])
+            else:
+                print(
+                    f"----- Compressed text\n{self.info[0]}\n----- Key\n{self.info[1]}\n----- Cipher text\n{self.info[2]}\n----- Plain text\n{self.info[3]}"
+                )
+
+    # The stadard get info method, retuns the stored data values from the last encryption
+    def info(self, search: str = None) -> str:
+        # If no parameter is given returns None
+        if search is None:
             return None
-        
-        match par:
-            case 0:
-                print(self.last_output[0])
-            case 1:
-                print(self.last_output[1])
-            case 2:
-                print(self.last_output[0])
-                print(self.last_output[1])
-            case _:
-                print(self.last_output[0])
+        # If the parameter is a str returns the value using its matching keyword else returns the data by its position in the list
+        if isinstance(search, str):
+            search = search.lower()
+            plain_text = ["p", "plain", "plain text", "plain_text", "text"]
+            cipher_text = ["c", "cipher", "cipher text", "cipher_text"]
+            compressed_text = [
+                "cc",
+                "compressed",
+                "compressed text",
+                "compressed_text",
+                "compressed cipher text",
+                "compressed_cipher_text",
+                "compressed cipher",
+                "compressed_cipher",
+            ]
+            key = ["key", "pass", "k"]
+            return (
+                self._info[0]
+                if search in compressed_text
+                else (
+                    self._info[1]
+                    if search in key
+                    else (
+                        self._info[2]
+                        if search in cipher_text
+                        else self._info[3] if search in plain_text else None
+                    )
+                )
+            )
+        elif isinstance(search, int):
+            return self._info[search]
 
-        return None
-
-    # Receives a standard hash and retuns a compressed hash.
-    def compression_(self, cipher_text):
+    # Receives a ciphered text and retuns a compressed ciphered text.
+    def compression_(self, cipher_text: str) -> str:
         aux = cipher_text
         posicao = 0
         countZero = 0
@@ -38,15 +103,13 @@ class HashChainEncryption:
         texto = ""
         caltStr = "10"
 
-
         while posicao < len(aux):
             i = aux[posicao]
 
             if i == "0":
                 countUm = 0
                 countZero += 1
-                
-                
+
                 if countZero >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
                     caltStr = str(countZero)
                     if len(caltStr) == 2:
@@ -67,7 +130,7 @@ class HashChainEncryption:
             else:
                 countZero = 0
                 countUm += 1
-                
+
                 if countUm >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
                     caltStr = str(countUm)
                     if len(caltStr) == 2:
@@ -92,13 +155,11 @@ class HashChainEncryption:
         elif countUm >= 2:
             texto += str(countUm) + "1"
 
-        return(texto)
-                    
+        return texto
 
-
-    # Receives a compressed hash and retuns the standard hash.
-    def decompression_(self, compressed_cipher_text):
-        norm = compressed_cipher_text
+    # Receives a compressed ciphered text and retuns the ciphered text.
+    def decompression_(self, compressed_cipher_text: str) -> str:
+        norm: str = compressed_cipher_text
         trad = {
             "Z": "0",
             "X": "1",
@@ -109,25 +170,24 @@ class HashChainEncryption:
             "6": "6",
             "7": "7",
             "8": "8",
-            "9": "9"
+            "9": "9",
         }
 
-        total = []
-        aux = []
+        total: list[str] = []
+        aux: list[str] = []
 
         for c in norm:
             if c in ["0", "1"] and not aux:
                 total.append(c)
-            elif c in ["Z", "X", "2","3","4","5","6","7","8","9"]:
+            elif c in ["Z", "X", "2", "3", "4", "5", "6", "7", "8", "9"]:
                 aux.append(trad[c])
             else:
                 total.append(c * int("".join(aux)))
                 aux = []
-            
+
         return "".join(total)
 
-
-    # Receives a text and returns the hashed text.
+    # Receives a plain text and returns the compressed cipher text.
     def encrypt_(
         self,
         plaintext: str = "",
@@ -196,7 +256,7 @@ class HashChainEncryption:
         # Gera uma seed diferente para cada passe se não houver passes fornecidos
         if not pass_:
             p = len(plaintext)
-            while p > 1:
+            while p > 0:
                 p -= 1
                 pass_.append(random.randint(min_table_leng, max_table_leng))
 
@@ -416,16 +476,23 @@ class HashChainEncryption:
                 f"Ciphertext: {ciphertext}\n\n"
             )
         else:
-            self.last_output = [self.compression_(ciphertext), key_result[1], ciphertext]
+            self._info = [
+                self.compression_(ciphertext),
+                key_result[1],
+                ciphertext,
+                plaintext,
+            ]
             return [self.compression_(ciphertext), key_result[1]]
 
-    # Receives a hashed text and returns the unhashed text.
-    def decrypt_(self):
-        def dechaveador(key: str = "", ciphertext: str = ""):
-            if not key:
-                raise ValueError("Coloque uma chave valída")
+    # Receives a compressed cipher text and returns the decrypted text (plain text / original message).
+    def decrypt_(self, ciphertext, key):
+        ciphertext = self.decompression_(ciphertext)
+
+        def dechaveador(ciphertext: str = "", key: str = ""):
             if not ciphertext:
                 raise ValueError("Coloque um ciphertext valído")
+            if not key:
+                raise ValueError("Coloque uma chave valída")
 
             lol_salt = int(key[0:3])
             index = 3 + lol_salt
@@ -453,16 +520,50 @@ class HashChainEncryption:
 
             index += sl + 3
 
+            padding = None if not key[index:] else int(key[index:])
+
             ciphertext_list = []
 
             s_index = 0
-            for n in range(0, pl):
-                ciphertext_list.append(ciphertext[s_index : passes[n]])
+
+            for n in range(0, len(passes)):
+                ciphertext_list.append(ciphertext[s_index : passes[n] + s_index])
+                s_index += passes[n]
 
             pad = -1
-            for p in range(0, len(posicoes) - 1):
+            for p in range(0, len(posicoes)):
                 del ciphertext_list[posicoes[pad]]
                 del passes[posicoes[pad]]
                 pad += -1
 
-            return passes, [seed], "".join(ciphertext_list)
+            return passes, seed, padding, ciphertext_list
+
+        desc = dechaveador(ciphertext, key)
+
+        pass_ = desc[0]
+        seed = desc[1]
+        cipher = desc[3]
+
+        plaintext = []
+
+        # GERAÇÃO DE SEEDS DIFERENTES PARA CADA PASSE
+        seeds_por_passe = []
+        dict_tables_por_passe = {}
+
+        # Usa a seed principal para gerar seeds únicas para cada passe
+        for i, passe in enumerate(pass_):
+            # Gera uma seed única para este passe baseada na seed principal + índice do passe
+            seed_passe = seed + (i * 1000000) + passe
+            seeds_por_passe.append(seed_passe)
+
+            # Gera tabelas específicas para este passe
+            dict_tables_passe = gerar_tabelas(seed_passe, [passe])[1]
+            dict_tables_por_passe[passe] = dict_tables_passe[passe]
+
+        for n, p in enumerate(pass_):
+            try:
+                plaintext.append(dict_tables_por_passe[p][cipher[n]])
+            except:
+                print("invalida")
+
+        return "".join(plaintext)
