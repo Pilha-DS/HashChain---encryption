@@ -495,6 +495,7 @@ class HashChainEncryption:
                 raise ValueError("Coloque uma chave valída")
             passes = []
             ciphertext_list = []
+            seed = 0
             if key[1] == '2':
                 key = key[1:]
                 lol_salt = int(key[0:3])
