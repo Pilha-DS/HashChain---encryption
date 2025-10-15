@@ -196,7 +196,7 @@ class HashChainEncryption:
         no_salt: bool = False,
         debug_mode: bool = False,
         min_table_leng: int = 20,
-        max_table_leng: int = 100,
+        max_table_leng: int = 999,
     ):
         def gerar_seed_decimal_aleatoria(num_digitos: int = 64) -> int:
             """Gera seed de 64 caracteres por padrão"""
