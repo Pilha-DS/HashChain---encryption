@@ -414,7 +414,6 @@ class HashChainEncryption:
                     "".join(poli_passes),
                     "".join(sl),
                     "".join(seed_value),
-                    padding,
                 ]
             )
 
