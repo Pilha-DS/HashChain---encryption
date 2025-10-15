@@ -535,7 +535,6 @@ class HashChainEncryption:
                     del ciphertext_list[posicoes[pad]]
                     del passes[posicoes[pad]]
                     pad += -1
-                return passes, seed, ciphertext_list
 
             elif key[2] == "1":
                 key = key[1:]
@@ -561,13 +560,12 @@ class HashChainEncryption:
                     ciphertext_list.append(ciphertext[s_index : passes[n] + s_index])
                     s_index += passes[n]
 
-                return passes, seed, ciphertext_list
-
+            return [passes, seed, ciphertext_list]
         desc = dechaveador(ciphertext, key)
 
         pass_ = desc[0]
         seed = desc[1]
-        cipher = desc[3]
+        cipher = desc[2]
 
         plaintext = []
 
