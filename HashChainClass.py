@@ -488,6 +488,7 @@ class HashChainEncryption:
     # Receives a compressed cipher text and returns the decrypted text (plain text / original message).
     def decrypt_(self, ciphertext, key):
         ciphertext = self.decompression_(ciphertext)
+        passes = []
         def dechaveador(ciphertext: str = "", key: str = ""):
             if not ciphertext:
                 raise ValueError("Coloque um ciphertext valído")
