@@ -12,6 +12,7 @@ Collector: InputCollector = InputCollector
 config = None
 has_dependencies = None
 Stable = True
+reinicios = 0
 yes_aliases = ["s", "sim", "y", "yes"]
 no_aliases = ["n", "nao", "não", "no"]
 
@@ -52,7 +53,13 @@ def verify_required_modules():
     has_dependencies = True if all(importlib.util.find_spec(module) is not None for module in dependencies) else False
 
 def reiniciar_programa():
-    main()
+    global reinicios
+    if reinicios > 100:
+        print("Numero de reinícios consecutivos excedido.")
+        close_program()
+    else:
+        reinicios += 1
+        main()
 
 # Will handle user input, function calls and the interface (WiP).
 def main():
@@ -132,6 +139,7 @@ def main():
                                 passo = config["params"]["passes"]
                         print(f"Passos escolhidos: {passo}")
                         while Stable:
+                            print("\n Salt é uma medida de segurança adicional que pode ser usada durante a criptografia para aumentar a aleatoriedade do processo, que adiciona sequências de caracteres e tamanhos aleatórios ao texto, ele transformara a chave para descriptografia em algo único para cada execução mesmo com os mesmos parâmetros.")
                             no_salt_input = input("\nDeseja usar salt na criptografia? (s/n): ").strip().lower()
                             if no_salt_input == "r":   
                                 reiniciar_programa()
@@ -150,7 +158,7 @@ def main():
                         print("\nChave de descriptografia:")
                         HashChain.out(1)
                         while Stable:
-                            salvar_input = input("Criptografia concluída, em alguns casos o texto pode ser grande demais para o terminal exibir, deseja salvar os salvar o texto gerado em um arquivo? (s/n): ").strip().lower()
+                            salvar_input = input("\nCriptografia concluída, em alguns casos o texto pode ser grande demais para o terminal exibir, deseja salvar os salvar o texto gerado em um arquivo? (s/n): ").strip().lower()
                             if salvar_input == "r":   
                                 reiniciar_programa()
                             elif salvar_input == "e":
@@ -160,16 +168,20 @@ def main():
                                 continue
                             if salvar_input in yes_aliases:
                                 while Stable:
-                                    tipo_salvamento = input("Escolha o tipo de salvamento:\n1. Salvar texto criptografado\n2. Salvar chave de descriptografia\n3. Salvar ambos\nDigite o número da ação desejada: ").strip()
+                                    tipo_salvamento = input("Escolha o tipo de salvamento:\n1. Texto criptografado e chave\n2. Salvar apenas o texto criptografado\n3. Salvar apenas a chave\nDigite o número da ação desejada: ").strip()
+                                    if tipo_salvamento == "r":
+                                        reiniciar_programa()
+                                    elif tipo_salvamento == "e":
+                                        close_program()
                                     if tipo_salvamento not in ["1", "2", "3"]:
                                         print("\nAção inválida. Tente novamente.")
                                         continue
                                     match tipo_salvamento:
-                                        case "1":
-                                            texto_salvo = HashChain.info(0)
                                         case "2":
-                                            texto_salvo = HashChain.info(1)
+                                            texto_salvo = HashChain.info(0)
                                         case "3":
+                                            texto_salvo = HashChain.info(1)
+                                        case "1":
                                             texto_salvo = HashChain.info(0) + '\n' + HashChain.info(1)
                                     break
                                 
@@ -221,6 +233,10 @@ def main():
                         if log_input:
                             while Stable:
                                 tipo_log = input("\nTipo de arquivo de log:\n1. Padrão (Primeira linha: texto, Segunda linha: chave)\n2. Só texto\n3. Só chave\nDigite o número da ação desejada: ").strip()
+                                if tipo_log == "r":    
+                                    reiniciar_programa()
+                                elif tipo_log == "e":
+                                    close_program()
                                 if tipo_log not in ["1", "2", "3"]:
                                     print("\nAção inválida. Tente novamente.")
                                     continue
@@ -228,6 +244,10 @@ def main():
                                     break      
                             while Stable:
                                 file_path = input("Digite o caminho do arquivo de log: ").strip()
+                                if file_path == "r":    
+                                    reiniciar_programa()
+                                elif file_path == "e":
+                                    close_program()
                                 try:
                                     with open(file_path, "r", encoding="utf-8") as file:
                                         if tipo_log == "1":
@@ -237,21 +257,20 @@ def main():
                                                 continue
                                             texto = content[0]
                                             key = content[1]
-                                            break
                                         elif tipo_log == "2":
                                             texto = file.read()
                                             key = input("Digite a chave para descriptografia: ")
-                                            break
                                         elif tipo_log == "3":
                                             key = file.read()
                                             texto = input("Digite o texto a ser descriptografado: ")
-                                            break
                                 except FileNotFoundError:
                                     print("Arquivo não encontrado. Tente novamente.")
                                     continue
-                            HashChain.decrypt_(texto, key)
-                            print("Descriptografia realizada com sucesso.")
-                            print(HashChain.decrypt_(texto, key))
+                                HashChain.decrypt_(texto, key)
+                                print("Descriptografia realizada com sucesso.")
+                                print(HashChain.decrypt_(texto, key))
+                                HashChain.out(3)
+                                break
                         else:     
                             texto = input("Digite o texto a ser descriptografado: ")
                             key = input("Digite a chave para descriptografia: ")
