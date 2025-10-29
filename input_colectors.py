@@ -25,18 +25,17 @@ class InputCollector:
         return user_choice
     
     def get_seed_() -> int:
-        print("Escolha a seed: ")
         seed: int = 0
         
         while len(str(seed)) < 8 or not isinstance(seed, int):
-            seed = input("Enter an 8 digit seed: ")
+            seed = input("Digite uma seed de no minimo 8 digitos: ")
             
             try:
                 if len(str(seed)) < 8:
-                    raise Exception("Seed must contain at least 8 digits.")
+                    raise Exception("A seed deve ter no minimo 8 digitos.")
                 seed = int(seed)
             except Exception as e:
-                print("Error: ", e, " Enter a valid seed (int).")
+                print("Error: ", e, " Digite uma seed valida (int).")
                 
         return seed
     
@@ -46,7 +45,7 @@ class InputCollector:
             print(passos)
             if len(str(passos)) <= 0: return False
             for _, passo in enumerate(passos):
-                if not isinstance(passo, int) or passo < 8 or passo > 24: return False
+                if not isinstance(passo, int) or passo < 20 or passo > 999: return False
             
             return True
         
@@ -73,7 +72,7 @@ class InputCollector:
         print("Escolha a sequencia de passos: ")
         
         while True:
-            raw_passos: str = input("Digite os passos separados por espaços. (Exemplo: 12 15 9): ")
+            raw_passos: str = input("Digite os passos separados por espaços. (Exemplo: 20 450 999): ")
             passos: list[int] = conver_input_(raw_passos)
             if is_valid_pass_(passos):
                 break

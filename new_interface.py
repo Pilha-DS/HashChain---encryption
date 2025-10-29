@@ -219,3 +219,4 @@ entry = ctk.CTkEntry(root, fg_color="#003366", text_color="#f2f2f2", placeholder
 
 interface_menu()
 root.mainloop()
+    
