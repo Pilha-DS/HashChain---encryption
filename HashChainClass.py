@@ -539,6 +539,7 @@ class HashChainEncryption:
                 lol_p = int(key[0:3])
                 index = 3 + lol_p
                 pl = int(key[index + 3 : index + 3 + lol_p])
+                passes = []
 
                 index += lol_p + 3
                 for n in range(0, pl):
@@ -549,6 +550,8 @@ class HashChainEncryption:
                 seed = int(key[index + 3 : sl + index + 3])
 
                 index += sl + 3
+
+                ciphertext_list = []
 
                 s_index = 0
                 for n in range(0, len(passes)):
