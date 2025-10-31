@@ -494,7 +494,7 @@ class HashChainEncryption:
             if not key:
                 raise ValueError("Coloque uma chave valída")
 
-            if key[1] == '2':
+            if key[1] == '1':
                 key = key[1:]
                 lol_salt = int(key[0:3])
                 index = 3 + lol_salt
@@ -520,7 +520,7 @@ class HashChainEncryption:
                 sl = int(key[index : index + 3])
                 seed = int(key[index + 3 : sl + index + 3])
 
-                index += sl + 3
+                index += sl + 3w
 
                 ciphertext_list = []
 
@@ -537,7 +537,7 @@ class HashChainEncryption:
                     pad += -1
                 return passes, seed, ciphertext_list
 
-            elif key[2] == "1":
+            elif key[2] == "2":
                 key = key[1:]
                 lol_p = int(key[0:3])
                 index = 3 + lol_p
