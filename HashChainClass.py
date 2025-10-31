@@ -10,8 +10,8 @@ from tables import gerar_tabelas
 class HashChainEncryption:
     # Initializes all the atributes.
     def __init__(self):
-        # Will recieve data in: [compressed_text, key, cipher_text, plain_text]
-        self._info: list[str] | None = None
+        # Will recieve data in: [compressed_text, key, cipher_text, plain_text, passes, seed]
+        self._info: list[str] | list[None] = [None, None, None, None, None, None]
 
     # Prints the desired stored encrypted data
     def out(self, output: str | int = 0) -> None:
@@ -32,10 +32,10 @@ class HashChainEncryption:
                 "compressed",
                 "compressed text",
                 "compressed_text",
-                "compressed cipher text",
-                "compressed_cipher_text",
                 "compressed cipher",
                 "compressed_cipher",
+                "compressed cipher text",
+                "compressed_cipher_text",
             ]
             key = ["key", "pass", "k"]
 
@@ -202,6 +202,9 @@ class HashChainEncryption:
         debug_mode: bool = False,
         min_table_leng: int = 20,
         max_table_leng: int = 999,
+        compress_text: bool = True,
+        retonar: bool = False,
+        printar: bool = False,
     ):
         def gerar_seed_decimal_aleatoria(num_digitos: int = 64) -> int:
             """Gera seed de 64 caracteres por padrão"""
@@ -488,11 +491,22 @@ class HashChainEncryption:
                 key_result[1],
                 ciphertext,
                 plaintext,
+                pass_,
+                seed,
             ]
-            return [ciphertext, key_result[1]]
+            
+            if compress_text:
+                ciphertext = self.compression_(ciphertext)
+            
+            if printar:
+                print(f"Ciphertext: {ciphertext}\nKey: {key_result[1]}\n")
+                
+            if retonar:
+                return [ciphertext, key_result[1]]
 
     # Receives a compressed cipher text and returns the decrypted text (plain text / original message).
-    def decrypt_(self, ciphertext, key):
+    def decrypt_(self, ciphertext, key, printar: bool = False, retonar: bool = False):
+        self._info[1] = key
         # Ciphertext já é o texto cifrado direto (sem compressão binária)
         # Se valores não vierem, tenta usar estado interno (quando disponível)
         if (ciphertext is None or ciphertext == "") or (key is None or key == ""):
@@ -668,12 +682,27 @@ class HashChainEncryption:
             except Exception:
                 return parse_sem_salt(key)
 
+        is_compressed = False
+        
+        for char in ciphertext:
+            if char not in ["0", "1"]:
+                is_compressed = True
+                break
+        
+        if is_compressed:
+            self._info[0] = ciphertext
+            ciphertext = self.decompression_(ciphertext)
+            self._info[2] = ciphertext
+            
         desc = dechaveador(ciphertext, key)
 
         pass_ = desc[0]
         seed = desc[1]
         cipher = desc[2]
-
+        
+        self._info[4] = pass_
+        self._info[5] = seed
+        
         plaintext = []
 
         # GERAÇÃO DE SEEDS DIFERENTES PARA CADA PASSE
@@ -698,4 +727,12 @@ class HashChainEncryption:
                 print("MISS idx=", n, "pass=", p, "len=", len(val))
                 print("invalida: ", val)
 
-        return "".join(plaintext)
+        plaintext = "".join(plaintext)
+        
+        self._info[3] = plaintext
+        
+        if printar:
+            print(f"Plaintext: {plaintext}\n")
+            
+        if retonar:
+            return plaintext
