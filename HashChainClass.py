@@ -496,10 +496,10 @@ class HashChainEncryption:
 
             if key[1] == '1':
                 key = key[1:]
-                lol_salt = int(key[0:3])
-                index = 3 + lol_salt
+                lol_salt = int(key[1:4])
+                index = 4 + lol_salt
 
-                salt_l = int(key[3:index])
+                salt_l = int(key[4:index])
                 posicoes = []
 
                 for n in range(0, salt_l):
@@ -520,7 +520,7 @@ class HashChainEncryption:
                 sl = int(key[index : index + 3])
                 seed = int(key[index + 3 : sl + index + 3])
 
-                index += sl + 3w
+                index += sl + 3
 
                 ciphertext_list = []
 
@@ -539,8 +539,8 @@ class HashChainEncryption:
 
             elif key[2] == "2":
                 key = key[1:]
-                lol_p = int(key[0:3])
-                index = 3 + lol_p
+                lol_p = int(key[1:4])
+                index = 4 + lol_p
                 pl = int(key[index + 3 : index + 3 + lol_p])
                 passes = []
 
