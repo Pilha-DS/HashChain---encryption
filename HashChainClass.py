@@ -522,6 +522,8 @@ class HashChainEncryption:
 
                 index += sl + 3
 
+                padding = None if not key[index:] else int(key[index:])
+
                 ciphertext_list = []
 
                 s_index = 0
@@ -535,8 +537,6 @@ class HashChainEncryption:
                     del ciphertext_list[posicoes[pad]]
                     del passes[posicoes[pad]]
                     pad += -1
-                return passes, seed, ciphertext_list
-
             elif key[2] == "2":
                 key = key[1:]
                 lol_p = int(key[1:4])
@@ -554,6 +554,8 @@ class HashChainEncryption:
 
                 index += sl + 3
 
+                padding = None if not key[index:] else int(key[index:])
+
                 ciphertext_list = []
 
                 s_index = 0
@@ -561,7 +563,7 @@ class HashChainEncryption:
                     ciphertext_list.append(ciphertext[s_index : passes[n] + s_index])
                     s_index += passes[n]
 
-                return passes, seed, ciphertext_list
+            return passes, seed, padding, ciphertext_list
 
         desc = dechaveador(ciphertext, key)
 
