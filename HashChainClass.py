@@ -1,6 +1,7 @@
 # ===== HashChainClass =====
 #      --- Imports ---
 import random
+import re
 import os
 from site import PREFIXES
 from tables import gerar_tabelas
@@ -62,6 +63,9 @@ class HashChainEncryption:
     def info(self, search: str = None) -> str:
         # If no parameter is given returns None
         if search is None:
+            return None
+        # If there is no stored info, return None gracefully
+        if self._info is None:
             return None
         # If the parameter is a str returns the value using its matching keyword else returns the data by its position in the list
         if isinstance(search, str):
@@ -467,7 +471,7 @@ class HashChainEncryption:
 
         # Saída final
         if debug_mode:
-            return (
+            print(
                 f"\nPlaintext: {cor['blu'] + plaintext + cor['pad']}\n\n"
                 f"Ciphertext_list: {', '.join(p for p in crude_ciphertext_list) if no_salt else ', '.join(p for p in salt_result[0])}\n\n"
                 f"Seeds por passe: {seeds_por_passe}\n\n"
@@ -476,6 +480,7 @@ class HashChainEncryption:
                 f"Invalid characters: {invalid_characters_list}\n\n"
                 f"Ciphertext: {ciphertext}\n\n"
             )
+            return
         else:
             # Armazena ciphertext diretamente (sem compressão binária)
             self._info = [
@@ -489,113 +494,179 @@ class HashChainEncryption:
     # Receives a compressed cipher text and returns the decrypted text (plain text / original message).
     def decrypt_(self, ciphertext, key):
         # Ciphertext já é o texto cifrado direto (sem compressão binária)
+        # Se valores não vierem, tenta usar estado interno (quando disponível)
+        if (ciphertext is None or ciphertext == "") or (key is None or key == ""):
+            if self._info is not None:
+                if ciphertext is None or ciphertext == "":
+                    ciphertext = self._info[0]
+                if key is None or key == "":
+                    key = self._info[1]
+        # Valida após possível fallback
+        if ciphertext is None or key is None or ciphertext == "" or key == "":
+            raise ValueError("ciphertext e/ou key ausentes. Gere com encrypt_ (sem debug) ou forneça valores válidos.")
+        if not isinstance(ciphertext, str) or not isinstance(key, str):
+            raise ValueError("ciphertext e key devem ser strings.")
+        # Remove possíveis sequências ANSI (modo debug) de ciphertext e key
+        def _remove_ansi(s: str) -> str:
+            return re.sub(r"\x1b\[[0-9;]*m", "", s)
+
+        ciphertext = _remove_ansi(ciphertext)
+        key = _remove_ansi(key)
 
         def dechaveador(ciphertext: str = "", key: str = ""):
             if not ciphertext:
                 raise ValueError("Coloque um ciphertext valído")
             if not key:
                 raise ValueError("Coloque uma chave valída")
-            ptr = 0
+            def parse_com_salt(k: str):
+                ptr_local = 0
+                if len(k) < 3:
+                    raise ValueError("Chave inválida: incompleta (lol_salt)")
+                lol_salt_local = int(k[ptr_local:ptr_local + 3])
+                ptr_local += 3
 
-            # Lê lol_salt (3 dígitos)
-            if len(key) < 3:
-                raise ValueError("Chave inválida: incompleta (lol_salt)")
-            lol_salt = int(key[ptr:ptr + 3])
-            ptr += 3
+                if lol_salt_local == 0:
+                    salt_l_local = 0
+                else:
+                    if len(k) < ptr_local + lol_salt_local:
+                        raise ValueError("Chave inválida: incompleta (salt_l)")
+                    salt_l_local = int(k[ptr_local:ptr_local + lol_salt_local])
+                    ptr_local += lol_salt_local
 
-            # Lê salt_l (comprimento variável com 'lol_salt' dígitos)
-            if lol_salt == 0:
-                salt_l = 0
-            else:
-                if len(key) < ptr + lol_salt:
-                    raise ValueError("Chave inválida: incompleta (salt_l)")
-                salt_l = int(key[ptr:ptr + lol_salt])
-                ptr += lol_salt
+                posicoes_local = []
+                for _ in range(salt_l_local):
+                    if len(k) < ptr_local + 3:
+                        raise ValueError("Chave inválida: incompleta (len posicao)")
+                    pn_len = int(k[ptr_local:ptr_local + 3])
+                    ptr_local += 3
+                    if pn_len < 0:
+                        raise ValueError("Chave inválida: tamanho de posição negativo")
+                    if len(k) < ptr_local + pn_len:
+                        raise ValueError("Chave inválida: incompleta (posicao)")
+                    posicoes_local.append(int(k[ptr_local:ptr_local + pn_len]))
+                    ptr_local += pn_len
 
-            # Lê posições do salt: para cada item, vem primeiro 3 dígitos (tamanho), depois o valor
-            posicoes = []
-            for _ in range(salt_l):
-                if len(key) < ptr + 3:
-                    raise ValueError("Chave inválida: incompleta (len posicao)")
-                pn_len = int(key[ptr:ptr + 3])
-                ptr += 3
-                if pn_len < 0:
-                    raise ValueError("Chave inválida: tamanho de posição negativo")
-                if len(key) < ptr + pn_len:
-                    raise ValueError("Chave inválida: incompleta (posicao)")
-                posicoes.append(int(key[ptr:ptr + pn_len]))
-                ptr += pn_len
+                if len(k) < ptr_local + 3:
+                    raise ValueError("Chave inválida: incompleta (lol_p)")
+                lol_p_local = int(k[ptr_local:ptr_local + 3])
+                ptr_local += 3
 
-            # Lê lol_p (3 dígitos) e depois pl (com 'lol_p' dígitos)
-            if len(key) < ptr + 3:
-                raise ValueError("Chave inválida: incompleta (lol_p)")
-            lol_p = int(key[ptr:ptr + 3])
-            ptr += 3
+                if lol_p_local == 0:
+                    pl_local = 0
+                else:
+                    if len(k) < ptr_local + lol_p_local:
+                        raise ValueError("Chave inválida: incompleta (pl)")
+                    pl_local = int(k[ptr_local:ptr_local + lol_p_local])
+                    ptr_local += lol_p_local
 
-            if lol_p == 0:
-                pl = 0
-            else:
-                if len(key) < ptr + lol_p:
-                    raise ValueError("Chave inválida: incompleta (pl)")
-                pl = int(key[ptr:ptr + lol_p])
-                ptr += lol_p
+                passes_local = []
+                for _ in range(pl_local):
+                    if len(k) < ptr_local + 3:
+                        raise ValueError("Chave inválida: incompleta (pass)")
+                    passes_local.append(int(k[ptr_local:ptr_local + 3]))
+                    ptr_local += 3
 
-            # Lê 'pl' passes (cada um com 3 dígitos)
-            passes = []
-            for _ in range(pl):
-                if len(key) < ptr + 3:
-                    raise ValueError("Chave inválida: incompleta (pass)")
-                passes.append(int(key[ptr:ptr + 3]))
-                ptr += 3
+                if len(k) < ptr_local + 3:
+                    raise ValueError("Chave inválida: incompleta (sl)")
+                sl_local = int(k[ptr_local:ptr_local + 3])
+                ptr_local += 3
+                if sl_local < 0 or len(k) < ptr_local + sl_local:
+                    raise ValueError("Chave inválida: incompleta (seed)")
+                seed_local = int(k[ptr_local:ptr_local + sl_local])
+                ptr_local += sl_local
 
-            # Lê sl (3 dígitos) e depois a seed com 'sl' dígitos
-            if len(key) < ptr + 3:
-                raise ValueError("Chave inválida: incompleta (sl)")
-            sl = int(key[ptr:ptr + 3])
-            ptr += 3
-            if sl < 0 or len(key) < ptr + sl:
-                raise ValueError("Chave inválida: incompleta (seed)")
-            seed = int(key[ptr:ptr + sl])
-            ptr += sl
+                padding_local = 0
+                if ptr_local < len(k):
+                    restante = k[ptr_local:]
+                    if restante:
+                        padding_local = int(restante)
 
-            # Opcional: padding (resto da chave) – quantidade de caracteres '1' adicionados ao final
-            padding = 0
-            if ptr < len(key):
-                restante = key[ptr:]
-                if restante:
-                    try:
-                        padding = int(restante)
-                    except ValueError:
-                        raise ValueError("Chave inválida: padding não numérico")
+                # aplica padding
+                ct_eff = ciphertext
+                if padding_local > 0:
+                    if padding_local > len(ct_eff):
+                        raise ValueError("Padding maior que o tamanho do ciphertext")
+                    ct_eff = ct_eff[: len(ct_eff) - padding_local]
 
-            # Remove padding do ciphertext se existir
-            if padding > 0:
-                if padding > len(ciphertext):
-                    raise ValueError("Padding maior que o tamanho do ciphertext")
-                ciphertext = ciphertext[: len(ciphertext) - padding]
+                # valida soma
+                if sum(passes_local) != len(ct_eff):
+                    raise ValueError("inconsistência entre passes e ciphertext (com salt)")
 
-            # Segmenta conforme os comprimentos dos passes
-            if sum(passes) != len(ciphertext):
-                print("DBG len(ciphertext)=", len(ciphertext))
-                print("DBG sum(passes)=", sum(passes))
-                print("DBG pl=", len(passes))
-                print("DBG salt_l=", salt_l)
-                print("DBG posicoes_exemplo=", posicoes[:6])
-                raise ValueError("erro: soma dos comprimentos dos passes diferente do tamanho do ciphertext")
-            ciphertext_list = []
-            resto = ciphertext
-            for comp in passes:
-                ciphertext_list.append(resto[:comp])
-                resto = resto[comp:]
+                # segmenta
+                ciphertext_list_local = []
+                resto_local = ct_eff
+                for comp in passes_local:
+                    ciphertext_list_local.append(resto_local[:comp])
+                    resto_local = resto_local[comp:]
 
-            # Remove os itens inseridos como salt seguindo a ordem inversa de inserção
-            # (índices foram capturados no momento da inserção)
-            for pos in reversed(posicoes):
-                if 0 <= pos < len(ciphertext_list):
-                    del ciphertext_list[pos]
-                    del passes[pos]
+                # remove sal
+                for pos in reversed(posicoes_local):
+                    if 0 <= pos < len(ciphertext_list_local):
+                        del ciphertext_list_local[pos]
+                        del passes_local[pos]
 
-            return passes, seed, ciphertext_list
+                return passes_local, seed_local, ciphertext_list_local
+
+            def parse_sem_salt(k: str):
+                ptr_local = 0
+                # aqui o início já é lol_p
+                if len(k) < 3:
+                    raise ValueError("Chave inválida: incompleta (lol_p)")
+                lol_p_local = int(k[ptr_local:ptr_local + 3])
+                ptr_local += 3
+
+                if lol_p_local == 0:
+                    pl_local = 0
+                else:
+                    if len(k) < ptr_local + lol_p_local:
+                        raise ValueError("Chave inválida: incompleta (pl)")
+                    pl_local = int(k[ptr_local:ptr_local + lol_p_local])
+                    ptr_local += lol_p_local
+
+                passes_local = []
+                for _ in range(pl_local):
+                    if len(k) < ptr_local + 3:
+                        raise ValueError("Chave inválida: incompleta (pass)")
+                    passes_local.append(int(k[ptr_local:ptr_local + 3]))
+                    ptr_local += 3
+
+                if len(k) < ptr_local + 3:
+                    raise ValueError("Chave inválida: incompleta (sl)")
+                sl_local = int(k[ptr_local:ptr_local + 3])
+                ptr_local += 3
+                if sl_local < 0 or len(k) < ptr_local + sl_local:
+                    raise ValueError("Chave inválida: incompleta (seed)")
+                seed_local = int(k[ptr_local:ptr_local + sl_local])
+                ptr_local += sl_local
+
+                padding_local = 0
+                if ptr_local < len(k):
+                    restante = k[ptr_local:]
+                    if restante:
+                        padding_local = int(restante)
+
+                ct_eff = ciphertext
+                if padding_local > 0:
+                    if padding_local > len(ct_eff):
+                        raise ValueError("Padding maior que o tamanho do ciphertext")
+                    ct_eff = ct_eff[: len(ct_eff) - padding_local]
+
+                if sum(passes_local) != len(ct_eff):
+                    raise ValueError("inconsistência entre passes e ciphertext (sem salt)")
+
+                ciphertext_list_local = []
+                resto_local = ct_eff
+                for comp in passes_local:
+                    ciphertext_list_local.append(resto_local[:comp])
+                    resto_local = resto_local[comp:]
+
+                return passes_local, seed_local, ciphertext_list_local
+
+            # Tenta primeiro com o formato que contém seção de salt; se falhar, tenta sem salt
+            try:
+                return parse_com_salt(key)
+            except Exception:
+                return parse_sem_salt(key)
 
         desc = dechaveador(ciphertext, key)
 
