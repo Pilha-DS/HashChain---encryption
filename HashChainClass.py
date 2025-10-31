@@ -405,7 +405,6 @@ class HashChainEncryption:
             # Gera chave polida (para uso real)
             polished_key = "".join(
                 [
-                    "1" if no_salt else "2",
                     "".join(lol_salt),
                     "".join(salt_l),
                     "".join(poli_salt),
@@ -488,80 +487,54 @@ class HashChainEncryption:
     # Receives a compressed cipher text and returns the decrypted text (plain text / original message).
     def decrypt_(self, ciphertext, key):
         ciphertext = self.decompression_(ciphertext)
+
         def dechaveador(ciphertext: str = "", key: str = ""):
             if not ciphertext:
                 raise ValueError("Coloque um ciphertext valído")
             if not key:
                 raise ValueError("Coloque uma chave valída")
 
-            if key[0:1] == '1':
-                key = key[1:]
-                lol_salt = int(key[0:3])
-                index = 3 + lol_salt
+            lol_salt = int(key[0:3])
+            index = 3 + lol_salt
 
-                salt_l = int(key[3:index])
-                posicoes = []
+            salt_l = int(key[3:index])
+            posicoes = []
 
-                for n in range(0, salt_l):
-                    pn = int(key[index : index + 3])
-                    index += 3
-                    posicoes.append(int(key[index : index + pn]))
-                    index += pn
+            for n in range(0, salt_l):
+                pn = int(key[index : index + 3])
+                index += 3
+                posicoes.append(int(key[index : index + pn]))
+                index += pn
 
-                lol_p = int(key[index : index + 3])
-                pl = int(key[index + 3 : index + 3 + lol_p])
-                passes = []
+            lol_p = int(key[index : index + 3])
+            pl = int(key[index + 3 : index + 3 + lol_p])
+            passes = []
 
-                index += lol_p + 3
-                for n in range(0, pl):
-                    passes.append(int(key[index : index + 3]))
-                    index += 3
+            index += lol_p + 3
+            for n in range(0, pl):
+                passes.append(int(key[index : index + 3]))
+                index += 3
 
-                sl = int(key[index : index + 3])
-                seed = int(key[index + 3 : sl + index + 3])
+            sl = int(key[index : index + 3])
+            seed = int(key[index + 3 : sl + index + 3])
 
-                index += sl + 3
+            index += sl + 3
 
-                padding = None if not key[index:] else int(key[index:])
+            padding = None if not key[index:] else int(key[index:])
 
-                ciphertext_list = []
+            ciphertext_list = []
 
-                s_index = 0
+            s_index = 0
 
-                for n in range(0, len(passes)):
-                    ciphertext_list.append(ciphertext[s_index : passes[n] + s_index])
-                    s_index += passes[n]
+            for n in range(0, len(passes)):
+                ciphertext_list.append(ciphertext[s_index : passes[n] + s_index])
+                s_index += passes[n]
 
-                pad = -1
-                for p in range(0, len(posicoes)):
-                    del ciphertext_list[posicoes[pad]]
-                    del passes[posicoes[pad]]
-                    pad += -1
-            else:
-                key = key[1:]
-                lol_p = int(key[1:4])
-                index = 4 + lol_p
-                pl = int(key[index + 3 : index + 3 + lol_p])
-                passes = []
-
-                index += lol_p + 3
-                for n in range(0, pl):
-                    passes.append(int(key[index : index + 3]))
-                    index += 3
-
-                sl = int(key[index : index + 3])
-                seed = int(key[index + 3 : sl + index + 3])
-
-                index += sl + 3
-
-                padding = None if not key[index:] else int(key[index:])
-
-                ciphertext_list = []
-
-                s_index = 0
-                for n in range(0, len(passes)):
-                    ciphertext_list.append(ciphertext[s_index : passes[n] + s_index])
-                    s_index += passes[n]
+            pad = -1
+            for p in range(0, len(posicoes)):
+                del ciphertext_list[posicoes[pad]]
+                del passes[posicoes[pad]]
+                pad += -1
 
             return passes, seed, padding, ciphertext_list
 
