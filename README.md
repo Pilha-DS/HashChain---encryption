@@ -1,86 +1,145 @@
-# HashChain---encryption V1.0.0
-   A simple encryption system that uses combinations of # and * to securely represent text, with integrated compression and multiple layers of security.
+# HashChain Encryption (HCC)
 
-   ✨ Main Features
-   🔒 Strong Encryption: Algorithm based on numeric seeds and substitution tables
+HCC é um esquema de criptografia por cadeias de substituição determinísticas com inserção opcional de salt, implementado em Python. Ele gera tabelas de substituição por passe a partir de uma seed principal e permite reverter o processo com uma chave compacta que embute toda a informação necessária para a descriptografia.
 
-   🗜️ Integrated Compression: Specialized compression system for # and * sequences
+## Sumário
+- Visão geral
+- Requisitos
+- Instalação / Setup
+- Conceitos-chave
+- Uso rápido
+- API da classe `HashChainEncryption`
+- Formato da chave (com e sem salt)
+- Modo debug
+- Boas práticas e considerações
 
-   🔑 Key Management: Unified system for easy decryption
+## Visão geral
+- **Substituição determinística:** Para cada caractere do texto plano, é aplicada uma substituição conforme tabelas geradas a partir de uma seed e dos passes.
+- **Múltiplos passes:** O texto é segmentado por uma sequência de comprimentos (passes). Cada parte usa uma tabela específica.
+- **Salt opcional:** Itens aleatórios (determinísticos via seed) podem ser inseridos no ciphertext para elevar a entropia e ofuscação. As posições do salt são codificadas na chave.
+- **Chave polida:** A chave gerada guarda comprimentos, passes, seed, e metadados de salt/padding, permitindo a descriptografia.
 
-   🛡️ Analysis-Resistant: No identifiable visual patterns
+## Requisitos
+- Python 3.11+ (testado também no Python 3.13)
 
-   🚀 How to Use
+## Instalação / Setup
+Clonar o repositório:
+```bash
+git clone https://github.com/SEU-USER/HashChain---encryption.git
+cd HashChain---encryption
+```
+Não há dependências externas; o projeto usa apenas a biblioteca padrão do Python.
 
-   git clone https://github.com/Pilha-DS/HashChain---encryption
+## Conceitos-chave
+- **Passes (`pass_`)**: lista de inteiros (3 dígitos na chave) que define como o ciphertext é segmentado e qual tabela usar por segmento.
+- **Seed principal (`seed`)**: inteiro decimal que determina todas as seeds derivadas por passe e pelo salting.
+- **Salt (opcional)**: strings inseridas em posições pseudoaleatórias, com base no `seed`. As posições e metadados são codificados na chave.
+- **Padding (opcional)**: número de caracteres '1' adicionados ao final do ciphertext para adequar o comprimento quando necessário; a quantidade é guardada na chave.
 
+## Uso rápido
+### Exemplo mínimo
+```python
+from HashChainClass import HashChainEncryption
 
-   Encrypt text.
+H = HashChainEncryption()
+plaintext = "Mensagem secreta"
 
-   python
+# Criptografar (com salt por padrão)
+ciphertext, key = H.encrypt_(plaintext)
 
-   #Encryption  
+# Descriptografar
+texto_original = H.decrypt_(ciphertext, key)
+print(texto_original)
+```
 
-   #Decryption  
+### Sem salt
+```python
+ciphertext, key = H.encrypt_("ABC", no_salt=True)
+print(H.decrypt_(ciphertext, key))
+```
 
-   #Compression  
+### Com parâmetros customizados
+```python
+ciphertext, key = H.encrypt_(
+    plaintext="Hello, HCC!",
+    pass_=[25, 30, 18],  # tamanhos dos segmentos/passes
+    seed=12345678901234567890,
+    no_salt=False,
+    min_table_leng=20,
+    max_table_leng=999,
+)
+```
 
-   #Decompression  
+## API da classe `HashChainEncryption`
+### `encrypt_(plaintext: str, pass_: list | None = None, seed: int = 0, no_salt: bool = False, debug_mode: bool = False, min_table_leng: int = 20, max_table_leng: int = 999)`
+- **Retorno (modo normal):** `[ciphertext, key]`.
+- **Comportamento:**
+  - Gera passes automaticamente se `pass_` não for informado.
+  - Gera `seed` decimal longa por padrão se não informada.
+  - Insere salt quando `no_salt=False` (padrão); remove ou ajusta padding conforme necessário.
+- **Modo debug:** ver seção “Modo debug”.
 
+### `decrypt_(ciphertext: str | None, key: str | None) -> str`
+- Aceita chaves com ou sem seção de salt (auto-detecta o formato):
+  - Tenta parsear como “com salt”; se falhar, tenta “sem salt”.
+- Remove automaticamente sequências ANSI caso `ciphertext`/`key` tenham sido copiadas de uma saída colorida.
+- Se `ciphertext`/`key` vierem vazios/nulos, tenta usar `self._info` (quando preenchido por uma execução de `encrypt_` em modo normal).
+- Retorna o texto plano.
 
-   📦 Project Structure
+### `info(search: str | int | None) -> str | None`
+- Retorna um dos valores armazenados da última criptografia realizada em modo normal.
+- `search` pode ser:
+  - Índice: `0` (ciphertext), `1` (key), `2` (ciphertext – alias), `3` (plaintext)
+  - Ou alias string: `"compressed"/"cipher"/"key"/"plain"` etc.
+- Retorna `None` caso ainda não haja dados armazenados.
 
-   HashChain---encryption/ 
-   └── funcional/
-      ├── HashChainApp.py     # Encryption application
-      ├── HashChainApp.py     # Encryption terminal
-      ├── compressor.py       # Simple compression
-      ├── descompressor.py    # Simple decompression
-      ├── tables.py           # Table generation
-      ├── grafador.py         # Key management
-      └── desgrafar.py        # Key management
+### `out(output: str | int = 0) -> None`
+- Imprime um dos itens armazenados ou todos, conforme o parâmetro.
 
+## Formato da chave
+A chave “polida” concatena campos em sequência. As seções variam conforme o uso de salt.
 
-   🛡️ Security Levels
-   🔐 Basic Encryption
+### Com salt (resumo)
+- `lol_salt` (3 dígitos) — comprimento do campo `salt_l`.
+- `salt_l` — quantidade de posições de salt.
+- `posicoes` — para cada posição, 3 dígitos indicando o número de dígitos do índice seguido do índice em si.
+- `lol_p` (3 dígitos) e depois `pl` — quantidade total de passes e seu comprimento.
+- `passes` — `pl` entradas de 3 dígitos cada.
+- `sl` (3 dígitos) e depois `seed` — comprimento e valor da seed decimal.
+- `padding` (opcional, ao final) — quantidade de '1' adicionados.
 
-   #8-digit seed, default table range
-   result = grafar("text", seed=12345678)
+### Sem salt (resumo)
+- `lol_p`, `pl`, `passes`, `sl`, `seed`, `padding` (opcional). Não inclui `lol_salt`, `salt_l` e `posicoes`.
 
+Observação: o parser da chave valida consistência de comprimentos e soma dos segmentos com o comprimento do ciphertext (após remover padding, quando existir).
 
-   📊 Performance
+## Modo debug
+- Ativar com `debug_mode=True` em `encrypt_`.
+- A função apenas imprime informações coloridas (plaintext, lista de ciphertext, seeds por passe, chave detalhada e polida, caracteres inválidos, ciphertext final).
+- **Não** retorna valores e **não** grava estado em `self._info`.
+- Use o modo normal (sem `debug_mode`) para produzir `ciphertext` e `key` utilizáveis diretamente por `decrypt_`.
 
-   Operation	Avg. Time	Compression Rate	Security
-   Encryption	15ms	-	🔒🔒🔒🔒
-   Decryption	12ms	-	🔒🔒🔒🔒
-   Compression	8ms	35-85%	-
-   Decompression	5ms	-	-
+## Boas práticas e considerações
+- Guarde sua `key` com segurança; ela contém tudo o que é necessário para reverter a criptografia.
+- Para alta variabilidade, use seeds longas e deixe `no_salt=False`.
+- Caso copie `ciphertext`/`key` de uma saída colorida, `decrypt_` remove sequências ANSI automaticamente.
+- `min_table_leng` não deve ser menor que `20` e `max_table_leng` não deve exceder `999`.
 
-   🚨 Known Limitations
-   ❌ Reduced efficiency with very short texts (<10 characters)
-   ❌ Overhead in highly alternating sequences (###*)
-   ❌ Need for secure seed management
+## Executando o exemplo `main.py`
+Um exemplo simples de uso pode estar em `main.py`. Ajuste conforme seu fluxo:
+```python
+from HashChainClass import HashChainEncryption
 
-   🚧 Planned Features
+def main():
+    H = HashChainEncryption()
+    ct, k = H.encrypt_("Teste HCC")
+    print("Ciphertext:", ct)
+    print("Key:", k)
+    print("Decrypted:", H.decrypt_(ct, k))
 
-   Web-based graphical interface
+if __name__ == "__main__":
+    main()
+```
 
-   REST API for integration
-
-   Browser plugins
-
-   iOS/Android mobile app
-
-   📝 License
-   This project is under the MIT license. See the LICENSE file for details.
-
-   🆘 Support
-   Found a problem? Open an issue or contact:
-   📧 Email: jsc.sanchescardoso@gmail.com
-
-   ⭐ Acknowledgments
-   Encryption algorithm developed with a focus on security and efficiency.
-   Version 1 was created as a college project, designed to be as simple as possible.
-
-   Optimized compression system for symbol patterns
-   Intuitive interface for end users
+## Licença
+Defina aqui a licença do projeto (por exemplo, MIT). Se não houver uma licença, considere adicioná-la.
