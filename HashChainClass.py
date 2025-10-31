@@ -4,6 +4,7 @@ import random
 import os
 from tables import gerar_tabelas
 
+
 class HashChainEncryption:
     # Initializes all the atributes.
     def __init__(self):
@@ -26,7 +27,6 @@ class HashChainEncryption:
             cipher_text = ["c", "cipher", "cipher text", "cipher_text"]
             compressed_text = [
                 "cc",
-                "ccc",
                 "compressed",
                 "compressed text",
                 "compressed_text",
@@ -39,27 +39,22 @@ class HashChainEncryption:
 
             # Prints the desired data
             if output in compressed_text:
-                print("----- Compressed Text -----")
                 print(self._info[0])
             elif output in key:
-                print("----- Key -----")
                 print(self._info[1])
             elif output in cipher_text:
-                print("----- Cipher Text -----")
                 print(self._info[2])
             elif output in plain_text:
-                print("----- Plain Text -----")
                 print(self._info[3])
 
         # Else if the argument is an int
         elif isinstance(output, int):
             # If the int is in range print the desired data, if it is out of range print all the info
             if output >= 0 and output <= 3:
-                print("")
                 print(self._info[output])
             else:
                 print(
-                    f"----- Compressed text -----\n{self._info[0]}\n\n----- Key -----\n{self._info[1]}\n\n----- Cipher text -----\n{self._info[2]}\n\n----- Plain text -----\n{self._info[3]}"
+                    f"----- Compressed text\n{self._info[0]}\n----- Key\n{self._info[1]}\n----- Cipher text\n{self._info[2]}\n----- Plain text\n{self._info[3]}"
                 )
 
     # The stadard get info method, retuns the stored data values from the last encryption
@@ -165,11 +160,6 @@ class HashChainEncryption:
     # Receives a compressed ciphered text and retuns the ciphered text.
     def decompression_(self, compressed_cipher_text: str) -> str:
         norm: str = compressed_cipher_text
-        t = []
-        for c in norm:
-            if c in ["Z", "X", "0", "1", "2", "3", "4", "5", "6", "7", "8", "9"]:
-                t.append(c)
-        norm = "".join(t)
         trad = {
             "Z": "0",
             "X": "1",
@@ -275,7 +265,6 @@ class HashChainEncryption:
         dict_tables_por_passe = {}
 
         # Usa a seed principal para gerar seeds únicas para cada passe
-
         random.seed(seed)
         for i, passe in enumerate(pass_):
             # Gera uma seed única para este passe baseada na seed principal + índice do passe
@@ -478,13 +467,7 @@ class HashChainEncryption:
 
         # Saída final
         if debug_mode:
-            self._info = [
-                self.compression_(ciphertext),
-                key_result[1],
-                ciphertext,
-                plaintext,
-            ]
-            print(
+            return (
                 f"\nPlaintext: {cor['blu'] + plaintext + cor['pad']}\n\n"
                 f"Ciphertext_list: {', '.join(p for p in crude_ciphertext_list) if no_salt else ', '.join(p for p in salt_result[0])}\n\n"
                 f"Seeds por passe: {seeds_por_passe}\n\n"
