@@ -592,11 +592,7 @@ class HashChainEncryption:
                 plaintext.append(dict_tables_por_passe[p][cipher[n]])
             except:
                 print("invalida")
-<<<<<<< HEAD
-
-=======
                 
         self._info[3] = "".join(plaintext)
         print(plaintext)
->>>>>>> 4ee8dbc27f6c4770f406f320e3e907ddd8b28670
         return "".join(plaintext)

@@ -1,19 +1,13 @@
 # --- Imports ---
-<<<<<<< HEAD
-from input_colectors import InputCollector
-=======
 import secrets
 import datetime
 from pathlib import Path
 from utils import Handler, InputCollector
->>>>>>> 4ee8dbc27f6c4770f406f320e3e907ddd8b28670
 from HashChainClass import HashChainEncryption
 
 # Global use.
-Collector: InputCollector = InputCollector
-<<<<<<< HEAD
 HashChain: HashChainEncryption = HashChainEncryption()
-=======
+Collector: InputCollector = InputCollector
 config_path = Handler.find_config_file()
 config = Handler.load_config(config_path)
 has_dependencies = None
@@ -52,7 +46,6 @@ def restart_program():
     else:
         reinicios += 1
         main()
->>>>>>> 4ee8dbc27f6c4770f406f320e3e907ddd8b28670
 
 def check_action(user_input):
     if user_input == "r": restart_program()
@@ -60,19 +53,6 @@ def check_action(user_input):
 
 # Will handle user input, function calls and the interface (WiP).
 def main():
-<<<<<<< HEAD
-    HashChain.encrypt_("asd", no_salt=False)
-    print("com")
-    HashChain.out("k")
-    print("sem")
-    HashChain.encrypt_("asd", no_salt=True)
-    HashChain.out("k")
-    # print(HashChain.info("cc"), HashChain.info("k"))
-    
-# Runs main the function if the "main.py" file is directly executed.
-if __name__ == "__main__":
-    main()
-=======
     global has_dependencies
     
     print(f"\nBem-vindo ao sistema de criptografia HashChain.\n - Para usar a interface você deve ter as bibliotecas tkinter e customtkinter instaladas.")
@@ -367,4 +347,3 @@ if __name__ == "__main__":
 if __name__ == "__main__":
     main()
     close_program()
->>>>>>> 4ee8dbc27f6c4770f406f320e3e907ddd8b28670
