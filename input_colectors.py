@@ -35,13 +35,14 @@ class InputCollector:
                     raise Exception("A seed deve ter no minimo 8 digitos.")
                 seed = int(seed)
             except Exception as e:
-                print("Erro: ", e, " Digite uma seed valida (int).")
+                print("Error: ", e, " Digite uma seed valida (int).")
                 
         return seed
     
     def get_passes_() -> list[int]:
         
         def is_valid_pass_(passos: list[int]) -> bool:
+            print(passos)
             if len(str(passos)) <= 0: return False
             for _, passo in enumerate(passos):
                 if not isinstance(passo, int) or passo < 20 or passo > 999: return False
@@ -55,7 +56,7 @@ class InputCollector:
             aux: list[str] = []
             try:
                 for char in raw_passos:
-                    if char not in valid_chars: raise Exception("Caractere inválido.")
+                    if char not in valid_chars: raise Exception("Invalid char.")
                     if char != " ":
                         aux.append(char)
                     elif char == " ":
@@ -71,10 +72,10 @@ class InputCollector:
         print("Escolha a sequencia de passos: ")
         
         while True:
-            raw_passos: str = input("Digite os passos separados por espaços, cada um sendo um inteiro de 20 a 999. (Exemplo: 20 450 999): ")
+            raw_passos: str = input("Digite os passos separados por espaços. (Exemplo: 20 450 999): ")
             passos: list[int] = conver_input_(raw_passos)
             if is_valid_pass_(passos):
                 break
-            print("Input inválido. Passes devem ser inteiros de 20 a 999. Tente novamente.")
+            print("Invalid input. Try again.")
             
         return passos

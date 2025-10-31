@@ -502,10 +502,8 @@ class HashChainEncryption:
             return [self.compression_(ciphertext), key_result[1]]
 
     # Receives a compressed cipher text and returns the decrypted text (plain text / original message).
-    def decrypt_(self, ciphertext, key) -> str:
-        self._info = [ciphertext, key, None, None]
+    def decrypt_(self, ciphertext, key):
         ciphertext = self.decompression_(ciphertext)
-        self._info[2] = ciphertext
         def dechaveador(ciphertext: str = "", key: str = ""):
             if not ciphertext:
                 raise ValueError("Coloque um ciphertext valído")
@@ -602,5 +600,5 @@ class HashChainEncryption:
                 plaintext.append(dict_tables_por_passe[p][cipher[n]])
             except:
                 print("invalida")
-        self._info[3] = "".join(plaintext)
+
         return "".join(plaintext)
