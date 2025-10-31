@@ -488,13 +488,13 @@ class HashChainEncryption:
     # Receives a compressed cipher text and returns the decrypted text (plain text / original message).
     def decrypt_(self, ciphertext, key):
         ciphertext = self.decompression_(ciphertext)
+        passes = []
         def dechaveador(ciphertext: str = "", key: str = ""):
             if not ciphertext:
                 raise ValueError("Coloque um ciphertext valído")
             if not key:
                 raise ValueError("Coloque uma chave valída")
-            passes = []
-            ciphertext_list = []
+
             if key[1] == '2':
                 key = key[1:]
                 lol_salt = int(key[0:3])
@@ -511,6 +511,7 @@ class HashChainEncryption:
 
                 lol_p = int(key[index : index + 3])
                 pl = int(key[index + 3 : index + 3 + lol_p])
+                passes = []
 
                 index += lol_p + 3
                 for n in range(0, pl):
@@ -521,6 +522,8 @@ class HashChainEncryption:
                 seed = int(key[index + 3 : sl + index + 3])
 
                 index += sl + 3
+
+                ciphertext_list = []
 
                 s_index = 0
 
