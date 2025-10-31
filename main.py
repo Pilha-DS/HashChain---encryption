@@ -56,7 +56,7 @@ def main():
     global has_dependencies
     
     print(f"\nBem-vindo ao sistema de criptografia HashChain.\n - Para usar a interface você deve ter as bibliotecas tkinter e customtkinter instaladas.")
-    print(" - Para reiniciar ou sair a qualquer momento, digite 'R' ou 'E'.\n")
+    print(" - Para reiniciar ou sair a qualquer momento, digite 'R' / 'r' ou 'E' / 'e'.\n")
     has_dependencies = Handler.verify_required_modules()
     
     if config is None:

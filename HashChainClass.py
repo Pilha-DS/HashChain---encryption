@@ -19,11 +19,26 @@ class HashChainEncryption:
         Prints the stored data based on the parameters given."""
         # If no encryption has occurred, return None
         name_order = ["\nCompressed Text:\n", "\nKey:\n", "\nCipher Text:\n", "\nPlain Text:\n", "\nPasses:\n", "\nSeed:\n"]
-        if self._info is None:
+        if all(i is None for i in self._info):
             print(None)
             return None
 
         args = list(args)
+        if not args:
+            print("\n ----- Complete Info: ----- ")
+            print("\nCompressed text:")
+            print(self._info[0])
+            print("\nKey:")
+            print(self._info[1])
+            print("\nCipher text:")
+            print(self._info[2])
+            print("\nPlain text:")
+            print(self._info[3])
+            print("\nPasses:")
+            print(self._info[4])
+            print("\nSeed:")
+            print(self._info[5])
+            return None
         # If the argument is a string interpret it as so
         for i, params in enumerate(args):
             if isinstance(args[i], str):
@@ -58,17 +73,17 @@ class HashChainEncryption:
 
                 # Prints the desired data
                 if args[i] in compressed_text:
-                    print("Compressed text:\n\n" + self._info[0])
+                    print("Compressed text:\n" + self._info[0])
                 elif args[i] in key:
-                    print("Key:\n\n" + self._info[1])
+                    print("Key:\n" + self._info[1])
                 elif args[i] in cipher_text:
-                    print("Cipher text:\n\n" + self._info[2])
+                    print("Cipher text:\n" + self._info[2])
                 elif args[i] in plain_text:
-                    print("Plain text:\n\n" + self._info[3])
+                    print("Plain text:\n" + self._info[3])
                 elif args[i] in passes:
-                    print("Passes:\n\n" + self._info[4])
+                    print("Passes:\n" + self._info[4])
                 elif args[i] in seed:
-                    print("Seed:\n\n" + self._info[5])
+                    print("Seed:\n" + self._info[5])
 
             # Else if the argument is an int
             elif isinstance(args[i], int):
@@ -78,17 +93,17 @@ class HashChainEncryption:
                     print(self._info[args[i]], '\n')
                 else:
                     print("\n ----- Complete Info: ----- ")
-                    print("\nCompressed text:\n")
+                    print("\nCompressed text:")
                     print(self._info[0])
-                    print("\nKey:\n")
+                    print("\nKey:")
                     print(self._info[1])
-                    print("\nCipher text:\n")
+                    print("\nCipher text:")
                     print(self._info[2])
-                    print("\nPlain text:\n")
+                    print("\nPlain text:")
                     print(self._info[3])
-                    print("\nPasses:\n")
+                    print("\nPasses:")
                     print(self._info[4])
-                    print("\nSeed:\n")
+                    print("\nSeed:")
                     print(self._info[5])
                     break
 
@@ -97,6 +112,9 @@ class HashChainEncryption:
         """Can only recieve parameters of type int or str.\n
         Returns the stored data based on the parameters given, if mulltiple arguments are given returns a list of the data."""
         if not args:
+            return None
+        
+        if all(i is None for i in self._info):
             return None
         
         data = []
@@ -157,6 +175,10 @@ class HashChainEncryption:
         countUm = 0
         texto = ""
         caltStr = "10"
+        
+        for char in cipher_text:
+            if char not in ["0", "1"]:
+                return "Erro: Não foi possível comprimir o texto, caractere inválido no texto cifrado. Apenas '0' e '1' são permitidos, verifique se o texto foi adulterado."
 
         while posicao < len(aux):
             i = aux[posicao]
@@ -217,6 +239,11 @@ class HashChainEncryption:
 
     # Receives a compressed ciphered text and retuns the ciphered text.
     def decompression(self, compressed_cipher_text: str, printar: bool = False) -> str:
+        
+        for char in compressed_cipher_text:
+            if char not in ["0", "1", "Z", "X", "2", "3", "4", "5", "6", "7", "8", "9"]:
+                return "Erro: Não foi possível descomprimir o texto, caractere inválido no texto comprimido. Apenas '0', '1', 'Z', 'X' e dígitos são permitidos, verifique se o texto foi adulterado."
+        
         norm: str = compressed_cipher_text
         trad = {
             "Z": "0",
@@ -541,21 +568,22 @@ class HashChainEncryption:
             )
             return
         else:
+            compressed = self.compression(ciphertext)
             self._info = [
-                ciphertext,
-                key_result[1],
-                self.compression(ciphertext),
-                plaintext,
-                pass_,
-                seed,
+                compressed,  # texto comprimido
+                key_result[1],  # chave
+                ciphertext,  # texto cifrado não comprimido
+                plaintext,  # texto original
+                pass_,  # passes
+                seed,  # seed
             ]
 
             if compress_text:
-                print("asdas")
-                ciphertext = self.compression(ciphertext)
+                ciphertext = compressed
 
             if printar:
-                print(f"Ciphertext: {ciphertext}\nKey: {key_result[1]}\n")
+                print(f"Ciphertext:\n{ciphertext}")
+                print(f"\nKey:\n{key_result[1]}")
 
             if retonar:
                 return [ciphertext, key_result[1]]
@@ -753,13 +781,16 @@ class HashChainEncryption:
                 is_compressed = True
                 break
 
+        # Se o texto está comprimido, descomprime e salva ambas as versões
         if is_compressed:
-            self._info[0] = ciphertext
-            ciphertext = self.decompression(ciphertext)
-            self._info[2] = ciphertext
+            self._info[0] = ciphertext  # salva o texto comprimido
+            decompressed = self.decompression(ciphertext)
+            self._info[2] = decompressed  # salva o texto descomprimido
+            ciphertext = decompressed  # atualiza o texto para descriptografia
         else:
-            self._info[2] = ciphertext
-            self._info[0] = self.compression(ciphertext)
+            # Se não está comprimido, comprime e salva ambas as versões
+            self._info[2] = ciphertext  # salva o texto não comprimido
+            self._info[0] = self.compression(ciphertext)  # salva a versão comprimida
 
         desc = dechaveador(ciphertext, key)
 
@@ -799,7 +830,7 @@ class HashChainEncryption:
         self._info[3] = plaintext
 
         if printar:
-            print(f"\nPlaintext:\n{plaintext}\n")
+            print(f"Plaintext:\n{plaintext}")
 
         if retonar:
             return plaintext
