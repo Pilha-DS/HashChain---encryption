@@ -494,12 +494,12 @@ class HashChainEncryption:
             if not key:
                 raise ValueError("Coloque uma chave valída")
 
-            if key[1] == '1':
+            if key[0:1] == '1':
                 key = key[1:]
-                lol_salt = int(key[1:4])
-                index = 4 + lol_salt
+                lol_salt = int(key[0:3])
+                index = 3 + lol_salt
 
-                salt_l = int(key[4:index])
+                salt_l = int(key[3:index])
                 posicoes = []
 
                 for n in range(0, salt_l):
@@ -537,7 +537,7 @@ class HashChainEncryption:
                     del ciphertext_list[posicoes[pad]]
                     del passes[posicoes[pad]]
                     pad += -1
-            elif key[2] == "2":
+            else:
                 key = key[1:]
                 lol_p = int(key[1:4])
                 index = 4 + lol_p
