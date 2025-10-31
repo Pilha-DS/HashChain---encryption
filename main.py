@@ -163,12 +163,12 @@ def main():
                             else:
                                 break
                         no_salt = True if no_salt_input in yes_aliases else False   
-                        HashChain.encrypt_(texto, passo, seed, no_salt)
+                        HashChain.encrypt(texto, passo, seed, no_salt)
                         print("\nCriptografia realizada com sucesso.")
-                        print("\nTexto criptografado:")
-                        HashChain.out(0)
-                        print("\nChave de descriptografia:")
-                        HashChain.out(1)
+                        print("\nTexto criptografado:\n")
+                        print(HashChain.info(0))
+                        print("\n\nChave de descriptografia:\n")
+                        print(HashChain.info(1))
                         while Stable:
                             salvar_input = input("\nCriptografia concluída, em alguns casos o texto pode ser grande demais para o terminal exibir, deseja salvar os salvar o texto gerado em um arquivo? (s/n): ").strip().lower()
                             
@@ -302,14 +302,14 @@ def main():
                                 except FileNotFoundError:
                                     print("Arquivo não encontrado. Tente novamente.")
                                     continue
-                                HashChain.decrypt_(texto, key)
+                                HashChain.decrypt(texto, key)
                                 print("Descriptografia realizada com sucesso.")
                                 HashChain.out(3)
                                 break
                         else:     
                             texto = input("Digite o texto a ser descriptografado: ")
                             key = input("Digite a chave para descriptografia: ")
-                            HashChain.decrypt_(texto, key)
+                            HashChain.decrypt(texto, key)
                             print("Descriptografia realizada com sucesso.")
                             HashChain.out(3)
                         
@@ -317,13 +317,13 @@ def main():
                     case 3:
                         texto = input("Digite o texto a ser comprimido: ")
                         print("\nTexto comprimido:")
-                        print(HashChain.compression_(texto))
+                        print(HashChain.compression(texto))
                         
                     # Descompressão
                     case 4:
                         texto = input("Digite o texto a ser descomprimido: ")
                         print("\nTexto descomprimido:")
-                        print(HashChain.decompression_(texto))
+                        print(HashChain.decompression(texto))
                         
                     # Sair
                     case 5:

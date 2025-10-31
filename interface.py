@@ -7,11 +7,11 @@ from HashChainClass import HashChainEncryption
 t: HashChainEncryption = HashChainEncryption()
 
 def grafar(a, b, c):
-    t.encrypt_(a, b, c)
+    t.encrypt(a, b, c)
     
 def desgrafar(a, b, c):
     if a and b and c:
-        t.decrypt_(a, b, c)
+        t.decrypt(a, b, c)
 
 # Configuração inicial
 ctk.set_appearance_mode("dark")
