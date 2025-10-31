@@ -1,4 +1,5 @@
 # --- Imports ---
+import json
 import secrets
 import datetime
 from pathlib import Path
@@ -188,14 +189,17 @@ def main():
                                         print("\nAção inválida. Tente novamente.")
                                         continue
                                     match tipo_salvamento:
+                                        # Save the COMPRESSED ciphertext (index 0) into JSON.
+                                        # Decrypt will receive the compressed value and
+                                        # HashChain.decrypt will detect/decompress as needed.
                                         case "2":
-                                            texto_salvo = HashChain.info(0)
+                                            dados = {"texto": HashChain.info(0)}
                                         case "3":
-                                            texto_salvo = HashChain.info(1)
+                                            dados = {"chave": HashChain.info(1)}
                                         case "1":
-                                            texto_salvo = HashChain.info(0) + '\n' + HashChain.info(1)
+                                            dados = {"texto": HashChain.info(0), "chave": HashChain.info(1)}
                                     break
-                                
+
                                 try:
                                     project_root = next(
                                         (p for p in Path(__file__).resolve().parents if p.name == "HashChain---encryption"),
@@ -210,19 +214,19 @@ def main():
 
                                     agora = datetime.datetime.now()
                                     milissegundos = int(agora.microsecond / 1000)
-                                    file_name = agora.strftime(f"log_%Y-%m-%d_%H-%M-%S-{milissegundos:03d}.txt")
+                                    file_name = agora.strftime(f"log_%Y-%m-%d_%H-%M-%S-{milissegundos:03d}.json")
                                     log_path = outputs_dir / file_name
 
-                                    # Cria e escreve o arquivo
+                                    # Cria e escreve o arquivo JSON
                                     with open(log_path, "x", encoding="utf-8") as file:
-                                        file.write(texto_salvo)
+                                        json.dump(dados, file, ensure_ascii=False, indent=4)
 
                                     print(f"\nLog salvo em: {log_path}")
                                     
                                 except Exception as e:
                                     print("Erro: Ocorreu um erro ao tentar criar o arquivo: ", e)
                                     
-                                print("\nO arquivo foi salvo no seguinte modelo: log_YYYY-MM-DD_HH-MM-SS-MMM.txt, e pode ser encontrado na pasta outputs.")
+                                print("\nO arquivo foi salvo no seguinte modelo: log_YYYY-MM-DD_HH-MM-SS-MMM.json, e pode ser encontrado na pasta outputs.")
                                 break
                             else:
                                 break
@@ -241,7 +245,7 @@ def main():
                     # Descriptografar
                     case 2:
                         while Stable:
-                            log_input = input("Deseja usar um arquivo de log para descriptografia? (s/n): ").strip().lower()
+                            log_input = input("\nDeseja usar um arquivo de log para descriptografia? (s/n): ").strip().lower()
                             
                             check_action(log_input)
                             
@@ -263,44 +267,36 @@ def main():
                                 else:
                                     break      
                             while Stable:
-                                file_path = input("Digite o caminho do arquivo de log: ").strip()
+                                file_path = input("\nDigite o caminho do arquivo de log: ").strip()
                                 
                                 check_action(file_path)
                                 
                                 try:
                                     with open(file_path, "r", encoding="utf-8") as file:
+                                        dados = json.load(file)
                                         if tipo_log == "1":
-                                            # stardard quebrado
-                                            """ content = file.read().splitlines()
-                                            if len(content) < 2:
+                                            if "texto" not in dados or "chave" not in dados:
                                                 print("O arquivo de log está incompleto ou inválido. Tente novamente.")
                                                 continue
-                                            texto = content[0]
-                                            key = content[1] """
-                                            # teste
-                                            content = file.read()
-                                            texto = []
-                                            key = []
-                                            line_break_passed = False
-                                            for char in content:
-                                                if char == '\n':
-                                                    line_break_passed = True
-                                                elif not line_break_passed:
-                                                    texto.append(char)
-                                                elif line_break_passed:
-                                                    key.append(char)
-                                            texto = ''.join(texto)
-                                            key = ''.join(key)
-                                            if '\n' in key or '\n' in texto:
-                                                print("a" * 399)
+                                            texto = dados["texto"]
+                                            key = dados["chave"]
                                         elif tipo_log == "2":
-                                            texto = file.read()
-                                            key = input("Digite a chave para descriptografia: ")
+                                            if "texto" not in dados:
+                                                print("O arquivo de log não contém o texto criptografado.")
+                                                continue
+                                            texto = dados["texto"]
+                                            key = input("Digite a chave para descriptografia: ").strip()
                                         elif tipo_log == "3":
-                                            key = file.read()
-                                            texto = input("Digite o texto a ser descriptografado: ")
+                                            if "chave" not in dados:
+                                                print("O arquivo de log não contém a chave.")
+                                                continue
+                                            key = dados["chave"]
+                                            texto = input("Digite o texto a ser descriptografado: ").strip()
                                 except FileNotFoundError:
                                     print("Arquivo não encontrado. Tente novamente.")
+                                    continue
+                                except json.JSONDecodeError:
+                                    print("Erro: arquivo JSON inválido. Tente novamente com um log gerado pelo programa.")
                                     continue
                                 HashChain.decrypt(texto, key)
                                 print("Descriptografia realizada com sucesso.")

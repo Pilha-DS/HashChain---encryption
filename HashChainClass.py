@@ -17,27 +17,20 @@ class HashChainEncryption:
     def out(self, *args) -> None:
         """Can only recieve parameters of type int or str.\n
         Prints the stored data based on the parameters given."""
-        # If no encryption has occurred, return None
-        name_order = ["\nCompressed Text:\n", "\nKey:\n", "\nCipher Text:\n", "\nPlain Text:\n", "\nPasses:\n", "\nSeed:\n"]
-        if all(i is None for i in self._info):
+        # If no encryption has occurred or all values are None, return None
+        name_order = ["\nCompressed Text:", "\nKey:", "\nCipher Text:", "\nPlain Text:", "\nPasses:", "\nSeed:"]
+        if self._info is None:
             print(None)
             return None
 
         args = list(args)
         if not args:
-            print("\n ----- Complete Info: ----- ")
-            print("\nCompressed text:")
-            print(self._info[0])
-            print("\nKey:")
-            print(self._info[1])
-            print("\nCipher text:")
-            print(self._info[2])
-            print("\nPlain text:")
-            print(self._info[3])
-            print("\nPasses:")
-            print(self._info[4])
-            print("\nSeed:")
-            print(self._info[5])
+            print("\n ----- Complete Info ----- ")
+            for i, name in enumerate(name_order):
+                if self._info[i] is not None:
+                    print(f"{name}")
+                    print(self._info[i])
+                    print()  # linha extra para melhor formatação
             return None
         # If the argument is a string interpret it as so
         for i, params in enumerate(args):
@@ -436,7 +429,7 @@ class HashChainEncryption:
             # Restaura o estado aleatório
             random.seed()
 
-            return salt_ciphertext_list, salt_passes, posicoes
+            return (salt_ciphertext_list, salt_passes, posicoes)
 
         def key_generator(
             passes_list: list,
@@ -508,7 +501,7 @@ class HashChainEncryption:
                 ]
             )
 
-            return poli_passes, polished_key, crude_key
+            return (poli_passes, polished_key, crude_key)
 
         # Processo de criptografia principal
         for caracter in plaintext:
