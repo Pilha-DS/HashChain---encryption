@@ -2,6 +2,7 @@
 #      --- Imports ---
 import random
 import os
+from site import PREFIXES
 from tables import gerar_tabelas
 
 
@@ -268,7 +269,7 @@ class HashChainEncryption:
         random.seed(seed)
         for i, passe in enumerate(pass_):
             # Gera uma seed única para este passe baseada na seed principal + índice do passe
-            seed_passe = seed + (i * 1000000) + passe
+            seed_passe = seed * 1000000 + passe
             seeds_por_passe.append(seed_passe)
 
             # Gera tabelas específicas para este passe
@@ -476,73 +477,131 @@ class HashChainEncryption:
                 f"Ciphertext: {ciphertext}\n\n"
             )
         else:
+            # Armazena ciphertext diretamente (sem compressão binária)
             self._info = [
-                self.compression_(ciphertext),
+                ciphertext,
                 key_result[1],
                 ciphertext,
                 plaintext,
             ]
-            return [self.compression_(ciphertext), key_result[1]]
+            return [ciphertext, key_result[1]]
 
     # Receives a compressed cipher text and returns the decrypted text (plain text / original message).
     def decrypt_(self, ciphertext, key):
-        ciphertext = self.decompression_(ciphertext)
+        # Ciphertext já é o texto cifrado direto (sem compressão binária)
 
         def dechaveador(ciphertext: str = "", key: str = ""):
             if not ciphertext:
                 raise ValueError("Coloque um ciphertext valído")
             if not key:
                 raise ValueError("Coloque uma chave valída")
+            ptr = 0
 
-            lol_salt = int(key[0:3])
-            index = 3 + lol_salt
+            # Lê lol_salt (3 dígitos)
+            if len(key) < 3:
+                raise ValueError("Chave inválida: incompleta (lol_salt)")
+            lol_salt = int(key[ptr:ptr + 3])
+            ptr += 3
 
-            salt_l = int(key[3:index])
+            # Lê salt_l (comprimento variável com 'lol_salt' dígitos)
+            if lol_salt == 0:
+                salt_l = 0
+            else:
+                if len(key) < ptr + lol_salt:
+                    raise ValueError("Chave inválida: incompleta (salt_l)")
+                salt_l = int(key[ptr:ptr + lol_salt])
+                ptr += lol_salt
+
+            # Lê posições do salt: para cada item, vem primeiro 3 dígitos (tamanho), depois o valor
             posicoes = []
+            for _ in range(salt_l):
+                if len(key) < ptr + 3:
+                    raise ValueError("Chave inválida: incompleta (len posicao)")
+                pn_len = int(key[ptr:ptr + 3])
+                ptr += 3
+                if pn_len < 0:
+                    raise ValueError("Chave inválida: tamanho de posição negativo")
+                if len(key) < ptr + pn_len:
+                    raise ValueError("Chave inválida: incompleta (posicao)")
+                posicoes.append(int(key[ptr:ptr + pn_len]))
+                ptr += pn_len
 
-            for n in range(0, salt_l):
-                pn = int(key[index : index + 3])
-                index += 3
-                posicoes.append(int(key[index : index + pn]))
-                index += pn
+            # Lê lol_p (3 dígitos) e depois pl (com 'lol_p' dígitos)
+            if len(key) < ptr + 3:
+                raise ValueError("Chave inválida: incompleta (lol_p)")
+            lol_p = int(key[ptr:ptr + 3])
+            ptr += 3
 
-            lol_p = int(key[index : index + 3])
-            pl = int(key[index + 3 : index + 3 + lol_p])
+            if lol_p == 0:
+                pl = 0
+            else:
+                if len(key) < ptr + lol_p:
+                    raise ValueError("Chave inválida: incompleta (pl)")
+                pl = int(key[ptr:ptr + lol_p])
+                ptr += lol_p
+
+            # Lê 'pl' passes (cada um com 3 dígitos)
             passes = []
+            for _ in range(pl):
+                if len(key) < ptr + 3:
+                    raise ValueError("Chave inválida: incompleta (pass)")
+                passes.append(int(key[ptr:ptr + 3]))
+                ptr += 3
 
-            index += lol_p + 3
-            for n in range(0, pl):
-                passes.append(int(key[index : index + 3]))
-                index += 3
+            # Lê sl (3 dígitos) e depois a seed com 'sl' dígitos
+            if len(key) < ptr + 3:
+                raise ValueError("Chave inválida: incompleta (sl)")
+            sl = int(key[ptr:ptr + 3])
+            ptr += 3
+            if sl < 0 or len(key) < ptr + sl:
+                raise ValueError("Chave inválida: incompleta (seed)")
+            seed = int(key[ptr:ptr + sl])
+            ptr += sl
 
-            sl = int(key[index : index + 3])
-            seed = int(key[index + 3 : sl + index + 3])
+            # Opcional: padding (resto da chave) – quantidade de caracteres '1' adicionados ao final
+            padding = 0
+            if ptr < len(key):
+                restante = key[ptr:]
+                if restante:
+                    try:
+                        padding = int(restante)
+                    except ValueError:
+                        raise ValueError("Chave inválida: padding não numérico")
 
-            index += sl + 3
+            # Remove padding do ciphertext se existir
+            if padding > 0:
+                if padding > len(ciphertext):
+                    raise ValueError("Padding maior que o tamanho do ciphertext")
+                ciphertext = ciphertext[: len(ciphertext) - padding]
 
-            padding = None if not key[index:] else int(key[index:])
-
+            # Segmenta conforme os comprimentos dos passes
+            if sum(passes) != len(ciphertext):
+                print("DBG len(ciphertext)=", len(ciphertext))
+                print("DBG sum(passes)=", sum(passes))
+                print("DBG pl=", len(passes))
+                print("DBG salt_l=", salt_l)
+                print("DBG posicoes_exemplo=", posicoes[:6])
+                raise ValueError("erro: soma dos comprimentos dos passes diferente do tamanho do ciphertext")
             ciphertext_list = []
+            resto = ciphertext
+            for comp in passes:
+                ciphertext_list.append(resto[:comp])
+                resto = resto[comp:]
 
-            s_index = 0
+            # Remove os itens inseridos como salt seguindo a ordem inversa de inserção
+            # (índices foram capturados no momento da inserção)
+            for pos in reversed(posicoes):
+                if 0 <= pos < len(ciphertext_list):
+                    del ciphertext_list[pos]
+                    del passes[pos]
 
-            for n in range(0, len(passes)):
-                ciphertext_list.append(ciphertext[s_index : passes[n] + s_index])
-                s_index += passes[n]
-
-            pad = -1
-            for p in range(0, len(posicoes)):
-                del ciphertext_list[posicoes[pad]]
-                del passes[posicoes[pad]]
-                pad += -1
-
-            return passes, seed, padding, ciphertext_list
+            return passes, seed, ciphertext_list
 
         desc = dechaveador(ciphertext, key)
 
         pass_ = desc[0]
         seed = desc[1]
-        cipher = desc[3]
+        cipher = desc[2]
 
         plaintext = []
 
@@ -553,17 +612,19 @@ class HashChainEncryption:
         # Usa a seed principal para gerar seeds únicas para cada passe
         for i, passe in enumerate(pass_):
             # Gera uma seed única para este passe baseada na seed principal + índice do passe
-            seed_passe = seed + (i * 1000000) + passe
+            seed_passe = seed * 1000000 + passe
             seeds_por_passe.append(seed_passe)
 
             # Gera tabelas específicas para este passe
             dict_tables_passe = gerar_tabelas(seed_passe, [passe])[1]
             dict_tables_por_passe[passe] = dict_tables_passe[passe]
-
         for n, p in enumerate(pass_):
-            try:
-                plaintext.append(dict_tables_por_passe[p][cipher[n]])
-            except:
-                print("invalida")
+            val = cipher[n]
+            inv = dict_tables_por_passe[p]
+            if val in inv:
+                plaintext.append(inv[val])
+            else:
+                print("MISS idx=", n, "pass=", p, "len=", len(val))
+                print("invalida: ", val)
 
         return "".join(plaintext)
