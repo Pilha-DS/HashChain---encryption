@@ -67,6 +67,9 @@ def main():
     print(" - Para reiniciar ou sair a qualquer momento, digite 'R' ou 'E'.")
     verify_required_modules()
     
+    if config is None:
+        print("\nO arquivo de configuração não foi carregado corretamente, as opções de criptografia padronizadas não estarão disponíveis.")
+    
     while Stable:
         if config["terminal_mode"]:
             while Stable:
@@ -139,7 +142,7 @@ def main():
                                 passo = config["params"]["passes"]
                         print(f"Passos escolhidos: {passo}")
                         while Stable:
-                            print("\n Salt é uma medida de segurança adicional que pode ser usada durante a criptografia para aumentar a aleatoriedade do processo, que adiciona sequências de caracteres e tamanhos aleatórios ao texto, ele transformara a chave para descriptografia em algo único para cada execução mesmo com os mesmos parâmetros.")
+                            print("\n Salt é uma medida de segu'rança adicional que pode ser usada durante a criptografia para aumentar a aleatoriedade do processo, que adiciona sequências de caracteres e tamanhos aleatórios ao texto, ele transformara a chave para descriptografia em algo único para cada execução mesmo com os mesmos parâmetros.")
                             no_salt_input = input("\nDeseja usar salt na criptografia? (s/n): ").strip().lower()
                             if no_salt_input == "r":   
                                 reiniciar_programa()
@@ -183,6 +186,11 @@ def main():
                                             texto_salvo = HashChain.info(1)
                                         case "1":
                                             texto_salvo = HashChain.info(0) + '\n' + HashChain.info(1)
+                                    # DEBUG REMOVER
+                                    for i in range(4):
+                                        print(i)
+                                        print(HashChain.info(i))
+                                    #
                                     break
                                 
                                 try:
@@ -251,12 +259,29 @@ def main():
                                 try:
                                     with open(file_path, "r", encoding="utf-8") as file:
                                         if tipo_log == "1":
-                                            content = file.read().splitlines()
+                                            # stardard quebrado
+                                            """ content = file.read().splitlines()
                                             if len(content) < 2:
                                                 print("O arquivo de log está incompleto ou inválido. Tente novamente.")
                                                 continue
                                             texto = content[0]
-                                            key = content[1]
+                                            key = content[1] """
+                                            # teste
+                                            content = file.read()
+                                            texto = []
+                                            key = []
+                                            line_break_passed = False
+                                            for char in content:
+                                                if char == '\n':
+                                                    line_break_passed = True
+                                                elif not line_break_passed:
+                                                    texto.append(char)
+                                                elif line_break_passed:
+                                                    key.append(char)
+                                            texto = ''.join(texto)
+                                            key = ''.join(key)
+                                            if '\n' in key or '\n' in texto:
+                                                print("a" * 399)
                                         elif tipo_log == "2":
                                             texto = file.read()
                                             key = input("Digite a chave para descriptografia: ")
@@ -268,7 +293,6 @@ def main():
                                     continue
                                 HashChain.decrypt_(texto, key)
                                 print("Descriptografia realizada com sucesso.")
-                                print(HashChain.decrypt_(texto, key))
                                 HashChain.out(3)
                                 break
                         else:     
