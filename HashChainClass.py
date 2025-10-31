@@ -54,7 +54,7 @@ class HashChainEncryption:
                 print(self._info[output])
             else:
                 print(
-                    f"----- Compressed text\n{self._info[0]}\n----- Key\n{self._info[1]}\n----- Cipher text\n{self._info[2]}\n----- Plain text\n{self._info[3]}"
+                    f"----- Compressed text\n{self.info[0]}\n----- Key\n{self.info[1]}\n----- Cipher text\n{self.info[2]}\n----- Plain text\n{self.info[3]}"
                 )
 
     # The stadard get info method, retuns the stored data values from the last encryption
