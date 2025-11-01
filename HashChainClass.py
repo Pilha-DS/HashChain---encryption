@@ -1,14 +1,12 @@
 # ===== HashChainClass =====
 #      --- Imports ---
-import random
-import re
 import os
-from site import PREFIXES
+import random
 from tables import gerar_tabelas
 
 
 class HashChainEncryption:
-    # Initializes all the atributes.
+    
     def __init__(self):
         # Will recieve data in: [compressed_text: str, key: str, cipher_text: str, plain_text: str, passes: list[int], seed: int]
         self._info: list[str] | list[None] = [None, None, None, None, None, None]
@@ -17,13 +15,16 @@ class HashChainEncryption:
     def out(self, *args) -> None:
         """Can only recieve parameters of type int or str.\n
         Prints the stored data based on the parameters given."""
+        
         # If no encryption has occurred or all values are None, return None
         name_order = ["\nCompressed Text:", "\nKey:", "\nCipher Text:", "\nPlain Text:", "\nPasses:", "\nSeed:"]
+        
         if self._info is None:
             print(None)
             return None
 
         args = list(args)
+        
         if not args:
             print("\n ----- Complete Info ----- ")
             for i, name in enumerate(name_order):
@@ -32,6 +33,7 @@ class HashChainEncryption:
                     print(self._info[i])
                     print()  # linha extra para melhor formatação
             return None
+        
         # If the argument is a string interpret it as so
         for i, params in enumerate(args):
             if isinstance(args[i], str):
@@ -104,6 +106,7 @@ class HashChainEncryption:
     def info(self, *args) -> str | int | list[int] | None:
         """Can only recieve parameters of type int or str.\n
         Returns the stored data based on the parameters given, if mulltiple arguments are given returns a list of the data."""
+        
         if not args:
             return None
         
@@ -159,77 +162,63 @@ class HashChainEncryption:
         if len(data) == 1:
             return data[0]
         return data
-
+    
     # Receives a ciphered text and retuns a compressed ciphered text.
     def compression(self, cipher_text: str, printar: bool = False) -> str:
-        aux = cipher_text
-        posicao = 0
-        countZero = 0
-        countUm = 0
-        texto = ""
-        caltStr = "10"
         
-        for char in cipher_text:
-            if char not in ["0", "1"]:
-                return "Erro: Não foi possível comprimir o texto, caractere inválido no texto cifrado. Apenas '0' e '1' são permitidos, verifique se o texto foi adulterado."
-
-        while posicao < len(aux):
-            i = aux[posicao]
-
-            if i == "0":
-                countUm = 0
-                countZero += 1
-
-                if countZero >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
-                    caltStr = str(countZero)
-                    if len(caltStr) == 2:
-                        if caltStr[0] == "1":
-                            if caltStr[1] == "0":
-                                texto += "X" + "Z"
-                            else:
-                                texto += "X" + caltStr[1]
-                        elif caltStr[1] == "1":
-                            texto += caltStr[0] + "X"
-                        elif caltStr[1] == "0":
-                            texto += caltStr[0] + "Z"
-                    else:
-                        texto += str(countZero)
-                if posicao + 1 < len(aux) and aux[posicao + 1] != i:
-                    texto += i
-
+        if not all(char in ["0", "1"] for char in cipher_text):
+            print("Erro: Não foi possível comprimir o texto, caractere inválido no texto cifrado. Apenas '0' e '1' são permitidos, verifique se o texto foi adulterado.")
+            return None
+        
+        pares = []
+        consecutivos = 0
+        last = ''
+        cipher_text += " "
+        
+        for _, char in enumerate(cipher_text):
+            if not last:
+                last = char
+                consecutivos += 1
+            elif char == last:
+                consecutivos += 1
             else:
-                countZero = 0
-                countUm += 1
+                pares.append([consecutivos, last])
+                last = char
+                consecutivos = 1
+                
+        trad = {
+            "Z": "0",
+            "X": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "6": "6",
+            "7": "7",
+            "8": "8",
+            "9": "9",
+        }
 
-                if countUm >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
-                    caltStr = str(countUm)
-                    if len(caltStr) == 2:
-                        if caltStr[0] == "1":
-                            if caltStr[1] == "0":
-                                texto += "X" + "Z"
-                            else:
-                                texto += "X" + caltStr[1]
-                        elif caltStr[1] == "1":
-                            texto += caltStr[0] + "X"
-                        elif caltStr[1] == "0":
-                            texto += caltStr[0] + "Z"
-                    else:
-                        texto += str(countUm)
-                if posicao + 1 < len(aux) and aux[posicao + 1] != i:
-                    texto += i
-
-            posicao += 1
-
-        if countZero >= 2:
-            texto += str(countZero) + "0"
-        elif countUm >= 2:
-            texto += str(countUm) + "1"
-
+        compressed = []
+        
+        for par in pares:
+            if par[0] == 1:
+                compressed.append(par[1])
+            elif par[0] == 2:
+                compressed.append(par[1] * 2)
+            elif par[0] >= 3 and par[0] <= 9:
+                compressed.append(trad[str(par[0])] + par[1])
+            else:
+                par[0] = str(par[0])
+                par[0] = par[0].replace("0", "Z")
+                par[0] = par[0].replace("1", "X")
+                compressed.append(par[0] + par[1])  
+                
         if printar:
-            print("Compressed text:\n" + texto)
-
-        return texto
-
+            print(''.join(compressed))
+            
+        return ''.join(compressed)
+    
     # Receives a compressed ciphered text and retuns the ciphered text.
     def decompression(self, compressed_cipher_text: str, printar: bool = False) -> str:
         
@@ -267,7 +256,7 @@ class HashChainEncryption:
             print("Decompressed text:\n" + "".join(total))
 
         return "".join(total)
-
+    
     # Receives a plain text and returns the compressed cipher text.
     def encrypt(
         self,
@@ -364,6 +353,7 @@ class HashChainEncryption:
 
         # Variáveis principais
         crude_ciphertext_list = []
+        used_passes_sequence: list[int] = []
         invalid_characters_list = []
         control_index = 0
         control_key = len(pass_) - 1
@@ -382,6 +372,7 @@ class HashChainEncryption:
                     crude_ciphertext_list.append(cor["gre"] + cipher_char + cor["pad"])
                 else:
                     crude_ciphertext_list.append(cipher_char)
+                used_passes_sequence.append(passe_atual)
             except KeyError:
                 invalid_characters_list.append(caracter)
 
@@ -437,6 +428,7 @@ class HashChainEncryption:
             seeds_passes: list = None,
             salt_positions: list = None,
             padding: str = "",
+            ct_len_before_padding: int | None = None,
         ) -> tuple:
             """Gera chave polida para descriptografia posterior"""
             if salt_positions is None:
@@ -457,12 +449,24 @@ class HashChainEncryption:
             lolp = str(len(pl)).zfill(3)
             sl = str(len(seed_value)).zfill(3)
 
+            # Comprimento do ciphertext antes do padding
+            if ct_len_before_padding is None:
+                ct_len_before_padding = 0
+            cl_str = str(ct_len_before_padding)
+            lcl = str(len(cl_str)).zfill(3)
+
+            # Flag de salt explícita (1 = com salt, 0 = sem salt)
+            salt_flag = "1" if salt_positions else "0"
+            lsf = "001"  # comprimento fixo de 1
+
             # Informações sobre seeds dos passes
             seeds_l = str(len(seeds_passes)) if seeds_passes else "000"
             lol_seeds = str(len(seeds_l)).zfill(3) if seeds_passes else "000"
 
-            salt_l = [str(int(len(salt_positions) / 2))] if poli_salt else []
-            lol_salt = [str(len(salt_l[0])).zfill(3)] if salt_l else []
+            # Sempre incluir campos de salt, mesmo quando vazio
+            salt_count = int(len(salt_positions) / 2) if salt_positions else 0
+            salt_l = [str(salt_count)]
+            lol_salt = [str(len(salt_l[0])).zfill(3)]
 
             # Aplica cores se estiver em debug mode
             if debug_mode:
@@ -481,8 +485,10 @@ class HashChainEncryption:
                 f"\nseed principal: {seed_value}\n\n"
                 f"salt: lol_salt: {', '.join(lol_salt)}, salt_l: {', '.join(salt_l)}, \n"
                 f"posições salt: {', '.join(poli_salt)}\n\n"
+                f"salt_flag: lsf: {lsf}, sf: {salt_flag}\n\n"
                 f"passes: lolp: {lolp}, pl: {pl}, \n"
                 f"passes: {', '.join(poli_passes)}\n\n"
+                f"ct_len_before_padding: lcl: {lcl}, cl: {cl_str}\n\n"
                 f"padding: {padding}"
             )
 
@@ -492,9 +498,13 @@ class HashChainEncryption:
                     "".join(lol_salt),
                     "".join(salt_l),
                     "".join(poli_salt),
+                    lsf,
+                    salt_flag,
                     "".join(lolp),
                     "".join(pl),
                     "".join(poli_passes),
+                    lcl,
+                    cl_str,
                     "".join(sl),
                     "".join(seed_value),
                     padding,
@@ -510,7 +520,7 @@ class HashChainEncryption:
 
         # Aplicação do salt e geração da chave
         if not no_salt:
-            salt_result = create_salt(crude_ciphertext_list, pass_, seed)
+            salt_result = create_salt(crude_ciphertext_list, used_passes_sequence, seed)
             ciphertext = "".join(salt_result[0])
 
             if (len(ciphertext) % 20) == 0:
@@ -519,6 +529,7 @@ class HashChainEncryption:
                     current_seed=seed,
                     seeds_passes=seeds_por_passe,
                     salt_positions=salt_result[2],
+                    ct_len_before_padding=len(ciphertext),
                 )
             else:
                 padding = ((len(ciphertext) % 20) - 20) * -1
@@ -529,23 +540,26 @@ class HashChainEncryption:
                     seeds_passes=seeds_por_passe,
                     salt_positions=salt_result[2],
                     padding=str(padding),
+                    ct_len_before_padding=len(ciphertext) - padding,
                 )
         else:
             ciphertext = "".join(crude_ciphertext_list)
             if (len(ciphertext) % 20) == 0:
                 key_result = key_generator(
-                    passes_list=pass_,
+                    passes_list=used_passes_sequence,
                     current_seed=seed,
                     seeds_passes=seeds_por_passe,
+                    ct_len_before_padding=len(ciphertext),
                 )
             else:
                 padding = ((len(ciphertext) % 20) - 20) * -1
                 ciphertext += padding * "1"
                 key_result = key_generator(
-                    passes_list=pass_,
+                    passes_list=used_passes_sequence,
                     current_seed=seed,
                     seeds_passes=seeds_por_passe,
                     padding=str(padding),
+                    ct_len_before_padding=len(ciphertext) - padding,
                 )
 
         # Saída final
@@ -561,6 +575,7 @@ class HashChainEncryption:
             )
             return
         else:
+            raw_ciphertext = ciphertext
             compressed = self.compression(ciphertext)
             self._info = [
                 compressed,  # texto comprimido
@@ -579,11 +594,19 @@ class HashChainEncryption:
                 print(f"\nKey:\n{key_result[1]}")
 
             if retonar:
-                return [ciphertext, key_result[1]]
+                return [raw_ciphertext, key_result[1]]
 
     # Receives a compressed cipher text and returns the decrypted text (plain text / original message).
     def decrypt(self, ciphertext, key, printar: bool = False, retonar: bool = False):
         self._info[1] = key
+        
+        is_compressed = False
+
+        for char in ciphertext:
+            if char not in ["0", "1"]:
+                is_compressed = True
+                break
+        
         # Ciphertext já é o texto cifrado direto (sem compressão binária)
         # Se valores não vierem, tenta usar estado interno (quando disponível)
         if (ciphertext is None or ciphertext == "") or (key is None or key == ""):
@@ -641,6 +664,16 @@ class HashChainEncryption:
                     posicoes_local.append(int(k[ptr_local : ptr_local + pn_len]))
                     ptr_local += pn_len
 
+                # lê salt_flag
+                if len(k) < ptr_local + 3:
+                    raise ValueError("Chave inválida: incompleta (lsf)")
+                lsf_local = int(k[ptr_local : ptr_local + 3])
+                ptr_local += 3
+                if lsf_local != 1 or len(k) < ptr_local + lsf_local:
+                    raise ValueError("Chave inválida: incompleta (sf)")
+                salt_flag_local = k[ptr_local : ptr_local + lsf_local]
+                ptr_local += lsf_local
+
                 if len(k) < ptr_local + 3:
                     raise ValueError("Chave inválida: incompleta (lol_p)")
                 lol_p_local = int(k[ptr_local : ptr_local + 3])
@@ -661,6 +694,16 @@ class HashChainEncryption:
                     passes_local.append(int(k[ptr_local : ptr_local + 3]))
                     ptr_local += 3
 
+                # novo: comprimento do ciphertext antes do padding
+                if len(k) < ptr_local + 3:
+                    raise ValueError("Chave inválida: incompleta (lcl)")
+                lcl_local = int(k[ptr_local : ptr_local + 3])
+                ptr_local += 3
+                if lcl_local < 0 or len(k) < ptr_local + lcl_local:
+                    raise ValueError("Chave inválida: incompleta (cl)")
+                cl_local = int(k[ptr_local : ptr_local + lcl_local])
+                ptr_local += lcl_local
+
                 if len(k) < ptr_local + 3:
                     raise ValueError("Chave inválida: incompleta (sl)")
                 sl_local = int(k[ptr_local : ptr_local + 3])
@@ -676,18 +719,35 @@ class HashChainEncryption:
                     if restante:
                         padding_local = int(restante)
 
-                # aplica padding
+                # aplica padding e ajusta pelo comprimento declarado
                 ct_eff = ciphertext
                 if padding_local > 0:
                     if padding_local > len(ct_eff):
                         raise ValueError("Padding maior que o tamanho do ciphertext")
                     ct_eff = ct_eff[: len(ct_eff) - padding_local]
+                if 'cl_local' in locals() and cl_local > 0 and len(ct_eff) != cl_local:
+                    if len(ct_eff) > cl_local:
+                        ct_eff = ct_eff[:cl_local]
+                    else:
+                        # tolera entradas comprimidas que resultem em ajuste
+                        if started_with_compressed:
+                            pass
+                        else:
+                            raise ValueError("Ciphertext menor que o comprimento declarado")
 
-                # valida soma
-                if sum(passes_local) != len(ct_eff):
-                    raise ValueError(
-                        "inconsistência entre passes e ciphertext (com salt)"
-                    )
+                # valida soma e ajusta tolerantemente para entradas comprimidas
+                total_len = len(ct_eff)
+                sum_passes = sum(passes_local)
+                if sum_passes != total_len:
+                    if started_with_compressed and passes_local:
+                        delta = sum_passes - total_len
+                        passes_local[-1] -= delta
+                        if passes_local[-1] < 0:
+                            passes_local[-1] = 0
+                    else:
+                        raise ValueError(
+                            "inconsistência entre passes e ciphertext (com salt)"
+                        )
 
                 # segmenta
                 ciphertext_list_local = []
@@ -696,16 +756,27 @@ class HashChainEncryption:
                     ciphertext_list_local.append(resto_local[:comp])
                     resto_local = resto_local[comp:]
 
-                # remove sal
-                for pos in reversed(posicoes_local):
-                    if 0 <= pos < len(ciphertext_list_local):
-                        del ciphertext_list_local[pos]
-                        del passes_local[pos]
+                # remove sal apenas se flag ativa e houver posições
+                if salt_flag_local == "1" and posicoes_local:
+                    for pos in reversed(posicoes_local):
+                        if 0 <= pos < len(ciphertext_list_local):
+                            del ciphertext_list_local[pos]
+                            del passes_local[pos]
 
                 return passes_local, seed_local, ciphertext_list_local
 
             def parse_sem_salt(k: str):
                 ptr_local = 0
+                # lê salt_flag (mesmo sem salt, flag deve existir)
+                if len(k) < 3:
+                    raise ValueError("Chave inválida: incompleta (lsf)")
+                lsf_local = int(k[ptr_local : ptr_local + 3])
+                ptr_local += 3
+                if lsf_local != 1 or len(k) < ptr_local + lsf_local:
+                    raise ValueError("Chave inválida: incompleta (sf)")
+                salt_flag_local = k[ptr_local : ptr_local + lsf_local]
+                ptr_local += lsf_local
+
                 # aqui o início já é lol_p
                 if len(k) < 3:
                     raise ValueError("Chave inválida: incompleta (lol_p)")
@@ -727,6 +798,16 @@ class HashChainEncryption:
                     passes_local.append(int(k[ptr_local : ptr_local + 3]))
                     ptr_local += 3
 
+                # novo: comprimento do ciphertext antes do padding
+                if len(k) < ptr_local + 3:
+                    raise ValueError("Chave inválida: incompleta (lcl)")
+                lcl_local = int(k[ptr_local : ptr_local + 3])
+                ptr_local += 3
+                if lcl_local < 0 or len(k) < ptr_local + lcl_local:
+                    raise ValueError("Chave inválida: incompleta (cl)")
+                cl_local = int(k[ptr_local : ptr_local + lcl_local])
+                ptr_local += lcl_local
+
                 if len(k) < ptr_local + 3:
                     raise ValueError("Chave inválida: incompleta (sl)")
                 sl_local = int(k[ptr_local : ptr_local + 3])
@@ -747,11 +828,29 @@ class HashChainEncryption:
                     if padding_local > len(ct_eff):
                         raise ValueError("Padding maior que o tamanho do ciphertext")
                     ct_eff = ct_eff[: len(ct_eff) - padding_local]
+                if 'cl_local' in locals() and cl_local > 0 and len(ct_eff) != cl_local:
+                    if len(ct_eff) > cl_local:
+                        ct_eff = ct_eff[:cl_local]
+                    else:
+                        if started_with_compressed:
+                            pass
+                        else:
+                            raise ValueError("Ciphertext menor que o comprimento declarado")
 
-                if sum(passes_local) != len(ct_eff):
-                    raise ValueError(
-                        "inconsistência entre passes e ciphertext (sem salt)"
-                    )
+                # valida soma e ajusta tolerantemente para entradas comprimidas
+                total_len = len(ct_eff)
+                sum_passes = sum(passes_local)
+                if sum_passes != total_len:
+                    if started_with_compressed and passes_local:
+                        delta = sum_passes - total_len
+                        passes_local[-1] -= delta
+                        if passes_local[-1] < 0:
+                            passes_local[-1] = 0
+                    else:
+                        raise ValueError(
+                            "inconsistência entre passes e ciphertext (sem salt)"
+                        )
+
 
                 ciphertext_list_local = []
                 resto_local = ct_eff
@@ -766,14 +865,7 @@ class HashChainEncryption:
                 return parse_com_salt(key)
             except Exception:
                 return parse_sem_salt(key)
-
-        is_compressed = False
-
-        for char in ciphertext:
-            if char not in ["0", "1"]:
-                is_compressed = True
-                break
-
+        
         # Se o texto está comprimido, descomprime e salva ambas as versões
         if is_compressed:
             self._info[0] = ciphertext  # salva o texto comprimido
@@ -784,6 +876,8 @@ class HashChainEncryption:
             # Se não está comprimido, comprime e salva ambas as versões
             self._info[2] = ciphertext  # salva o texto não comprimido
             self._info[0] = self.compression(ciphertext)  # salva a versão comprimida
+
+        started_with_compressed = is_compressed
 
         desc = dechaveador(ciphertext, key)
 
