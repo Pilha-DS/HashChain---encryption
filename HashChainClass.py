@@ -2,6 +2,7 @@
 #      --- Imports ---
 import os
 import random
+import re
 from tables import gerar_tabelas
 
 

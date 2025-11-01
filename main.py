@@ -18,20 +18,22 @@ yes_aliases = ["s", "sim", "y", "yes"]
 no_aliases = ["n", "nao", "não", "no"]
 
 # Terminal colors
+r = '\033[0m'      # Reset
+red = '\033[0;31m' # Red
+green = '\033[0;32m' # Green
+yellow = '\033[0;33m' # Yellow
+blue = '\033[0;34m' # Blue
+white = '\033[0;37m' # White
+black = '\033[0;30m' # Black
+cyan = '\033[0;36m' # Cyan
+purple = '\033[0;35m' # Purple
+gray = '\033[0;90m' # Gray
 
-# r = f'\e[0m' # Reset
-# red = f'\e[0;31m' # Red
-# green = f'\e[0;32m' # Green
-# yellow = f'\e[0;33m' # Yellow
-# blue = f'\e[0;34m' # Blue
-# withe = f'\e[0;37m' # White
-# black = f'\e[0;30m' # Black
-# cyan = f'\e[0;36m' # Cyan
-# purple = f'\e[0;35m' # Purple
-# gray = f'\e[0;90m' # Gray
-# bold = f'\e[1m' # Bold
-# italic = f'\e[3m' # Italic
-# underline = f'\e[4m' # Underline
+# Estilos
+bold = '\033[1m'       # Bold
+italic = '\033[3m'     # Italic
+underline = '\033[4m'  # Underline
+
 
 # --- Functions ---
 
@@ -56,8 +58,8 @@ def check_action(user_input):
 def main():
     global has_dependencies
     
-    print(f"\nBem-vindo ao sistema de criptografia HashChain.\n - Para usar a interface você deve ter as bibliotecas tkinter e customtkinter instaladas.")
-    print(" - Para reiniciar ou sair a qualquer momento, digite 'R' / 'r' ou 'E' / 'e'.\n")
+    print(f"\nBem-vindo ao sistema de criptografia {bold}HashChain.{r}\n {italic}- Para {bold}usar a interface{r}{italic} você deve ter as bibliotecas {r}{bold}tkinter{r}{italic} e {r}{bold}customtkinter{r}{italic} instaladas.{r}")
+    print(f"{italic} - Para {bold}reiniciar{r}{italic} ou {bold}sair{r}{italic} a qualquer momento, digite {bold}'R' {r}{italic}/{bold} 'r'{r}{italic} ou {bold}'E'{r}{italic} /{bold} 'e'{r}.\n")
     has_dependencies = Handler.verify_required_modules()
     
     if config is None:
@@ -66,21 +68,21 @@ def main():
     while Stable:
         if config["terminal_mode"]:
             while Stable:
-                terminal_mode_input = input("\nDeseja usar o modo terminal? Caso contrário a interface gráfica sera iniciada. (s/n): ").strip().lower()
+                terminal_mode_input = input(f"\nDeseja usar a interface gráfica? Caso contrário o modo terminal será utilizado. {bold}(s/n){r}: ").strip().lower()
                 check_action(terminal_mode_input)
                 if terminal_mode_input in yes_aliases + no_aliases:
                     break
                 else:
                     print("Ação inválida. Tente novamente.")
                     continue
-            config["terminal_mode"] = True if terminal_mode_input in yes_aliases else False
+            config["terminal_mode"] = True if terminal_mode_input in no_aliases else False
             if not config["terminal_mode"]:
                 continue
               
             while Stable:
-                action = input("\nEscolha uma ação:\n1. Criptografar Texto\n2. Descriptografar Texto\n3. Comprimir Texto\n4. Descomprimir Texto\n5. Sair\n\nDigite o número da ação desejada: ").strip()
+                action = input("\nEscolha uma ação:\n1. Criptografar Texto\n2. Descriptografar Texto\n3. Comprimir Texto\n4. Descomprimir Texto\n5. Ajuda\n6. Sair\n\nDigite o número da ação desejada: ").strip()
                 check_action(action)
-                if action not in ["1", "2", "3", "4", "5"]:
+                if action not in ["1", "2", "3", "4", "5", "6"]:
                     print("\nAção inválida. Tente novamente.")
                     continue
                 action = int(action)
@@ -168,7 +170,7 @@ def main():
                         print("\nCriptografia realizada com sucesso.")
                         print("\nTexto criptografado:\n")
                         print(HashChain.info(0))
-                        print("\n\nChave de descriptografia:\n")
+                        print("\nChave de descriptografia:\n")
                         print(HashChain.info(1))
                         while Stable:
                             salvar_input = input("\nCriptografia concluída, em alguns casos o texto pode ser grande demais para o terminal exibir, deseja salvar os salvar o texto gerado em um arquivo? (s/n): ").strip().lower()
@@ -321,8 +323,36 @@ def main():
                         print("\nTexto descomprimido:")
                         print(HashChain.decompression(texto))
                         
-                    # Sair
+                    # Ajuda
                     case 5:
+                        print(f"\n{bold}Ajuda - HashChain Encryption System{r}")
+                        while Stable:
+                            ajuda_input = input("\nEscolha uma opção de ajuda:\n1. Sobre o HashChain\n2. Como usar o programa\n3. Explicação dos parâmetros\n4. Explicação da decriptação\n5. Explicação da compressão e descompressão\n6. Voltar ao menu principal\nDigite o número da ação desejada: ").strip()
+                            
+                            check_action(ajuda_input)
+                            
+                            if ajuda_input not in ["1", "2", "3", "4", "5", "6"]:
+                                print("\nAção inválida. Tente novamente.")
+                                continue
+                        
+                            match ajuda_input:
+                                case "1":
+                                    print("\nO HashChain é um sistema de criptografia que utiliza cadeias de funções hash para garantir a segurança dos dados. Ele permite a criptografia e descriptografia de textos, além de oferecer funcionalidades de compressão e descompressão.")
+                                case "2":
+                                    print("\nPara usar o programa, escolha entre o modo terminal ou a interface gráfica (se disponível). Siga as instruções na tela para criptografar, descriptografar, comprimir ou descomprimir textos.")
+                                case "3":
+                                    print("\nParâmetros:\n- Seed: Um número inicial usado para gerar a cadeia de hash.\n- Passos: Uma lista de inteiros que define as etapas da cadeia de hash.\n- Salt: Uma medida de segurança adicional que pode ser usada durante a criptografia para aumentar a aleatoriedade do processo.")
+                                case "4":
+                                    print("\nA descriptografia requer o texto criptografado e a chave gerada durante a criptografia. O HashChain utiliza a cadeia de hash inversa para recuperar o texto original. Durante a criptografia, esses dados podem ser salvos em um arquivo de log para facilitar a descriptografia posterior, copiando e colando o seu caminho relativo a pasta atual.")
+                                case "5":
+                                    print("\nA compressão reduz o tamanho do texto utilizando algoritmos específicos, enquanto a descompressão reverte esse processo para recuperar o texto original.")
+                                case "6":
+                                    print("\nVoltando ao menu principal.")
+                                    break
+                                        
+                        
+                    # Sair
+                    case 6:
                         close_program()
                         
                     case _:

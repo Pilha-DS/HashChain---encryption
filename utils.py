@@ -116,6 +116,25 @@ import json
 import importlib.util
 from pathlib import Path
 
+# Global
+
+# Terminal colors
+r = '\033[0m'      # Reset
+red = '\033[0;31m' # Red
+green = '\033[0;32m' # Green
+yellow = '\033[0;33m' # Yellow
+blue = '\033[0;34m' # Blue
+white = '\033[0;37m' # White
+black = '\033[0;30m' # Black
+cyan = '\033[0;36m' # Cyan
+purple = '\033[0;35m' # Purple
+gray = '\033[0;90m' # Gray
+
+# Estilos
+bold = '\033[1m'       # Bold
+italic = '\033[3m'     # Italic
+underline = '\033[4m'  # Underline
+
 class Handler:
     def __init__(self):
         pass
@@ -128,14 +147,14 @@ class Handler:
                 with open(path, "r", encoding="utf-8") as file:
                     data = json.load(file)
                     if expected_id is None or data.get("idd") == expected_id:
-                        print(f"\nArquivo de configuração encontrado em: {path}")
+                        print(f"\nArquivo de configuração encontrado em: {italic}{path}{r}")
                         return path
                     else:
-                        print(f"Ignorando {path}, id diferente ({data.get('idd')})")
+                        print(f"{bold}Ignorando {path}, id diferente ({data.get('idd')}).{r}")
             except (json.JSONDecodeError, OSError) as e:
                 print(f"Erro ao ler {path}: {e}")
-        print("\nErro: O arquivo de configurações 'config.json' não foi encontrado no diretório.")
-        print(" - As opções de criptografia padronizadas não estarão disponíveis.")
+        print(f"\n{bold}Erro:{r} O arquivo de configurações {bold}'config.json' não foi encontrado no diretório.{r}")
+        print(f"{italic} - As opções de criptografia padronizadas{r} {bold}não estarão disponíveis.{r}")
         return None
     
     def load_config(config_path) -> dict[str, bool] | None:
@@ -147,24 +166,24 @@ class Handler:
             try:
                 with open(config_path, "r") as config_file:
                     config = json.load(config_file)
-                    print(" - Configurações carregadas com sucesso.")
+                    print(f"{italic} - Configurações carregadas com sucesso.{r}")
                     return config
             except FileNotFoundError:
-                print(" - Erro: O arquivo de configurações 'config.json' não foi encontrado no diretório.")
+                print(f" - {italic}Erro: O arquivo de configurações {r}{bold}'config.json' não foi encontrado no diretório.{r}")
             except json.JSONDecodeError:
-                print(" - Erro: Falha ao decodificar o arquivo 'config.json'. Verifique sua integridade.")
+                print(f" - {italic}Erro: Falha ao decodificar o arquivo {r}{bold}'config.json'.{r} Verifique sua integridade.")
                 
     def verify_required_modules():
         dependencies = ["tkinter", "customtkinter"]
         for module in dependencies:
             if importlib.util.find_spec(module) is not None:
-                print(f"Atualemte o módulo {module} está instalado.")
+                print(f"Atualemte o módulo \033[1m{module}\033[0m está instalado.")
             else:
-                print(f"Atualemte o módulo {module} não está instalado, rode o seguinte comando no terminal para instalar:\npip install {module}")
+                print(f"Atualemte o módulo \033[1m{module} não está instalado\033[0m, rode o seguinte comando no terminal para instalar:\npip install \033[1m{module}\033[0m")
         has_dependencies = True if all(importlib.util.find_spec(module) is not None for module in dependencies) else False
         if not has_dependencies:
-            print("Para instalar utilizando o pip, é necessário ter o pip instalado e configurado no PATH do sistema.")
-            print("Por opção dos criadores, decidimos não forçar a instalação do pip e dos módulos necessários necessários para utilização a interface gráfica, pois, consideramos essa prática como intrusiva, e acreditamos que o usuário deve ter controle sobre o que é instalado em seu sistema.")
+            print(f"{italic}Para instalar utilizando o {r}{bold}pip{r}{italic}, é necessário ter o pip {r}{bold}instalado e configurado no PATH do sistema.{r}")
+            print(f"Por opção dos criadores, decidimos não forçar a instalação do pip e dos módulos necessários necessários para utilização a interface gráfica, pois, consideramos essa prática como {bold}intrusiva{r}, e acreditamos que o usuário deve ter controle sobre o que é instalado em seu sistema.")
         
         return has_dependencies
     
@@ -177,8 +196,8 @@ class Handler:
                 with open(config_path, "w") as config_file:
                     json.dump(config, config_file, indent=4)
             except FileNotFoundError:
-                print("Erro: O arquivo de configurações 'config.json' não foi encontrado no diretório.")
+                print(f"{bold}Erro: O arquivo de configurações 'config.json' não foi encontrado no diretório.{r}")
             except json.JSONDecodeError:
-                print("Erro: Falha ao decodificar o arquivo 'config.json'. Verifique sua integridade.")
+                print(f"{bold}Erro: Falha ao decodificar o arquivo 'config.json'. Verifique sua integridade.{r}")
         print("\nPrograma encerrado.\n")
         raise SystemExit
