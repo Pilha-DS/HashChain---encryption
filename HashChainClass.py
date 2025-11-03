@@ -32,7 +32,6 @@ class HashChainEncryption:
                 if self._info[i] is not None:
                     print(f"{name}")
                     print(self._info[i])
-                    print()  # linha extra para melhor formatação
             return None
         
         # If the argument is a string interpret it as so
@@ -84,25 +83,30 @@ class HashChainEncryption:
             # Else if the argument is an int
             elif isinstance(args[i], int):
                 # If the int is in range print the desired data, if it is out of range print all the info
-                if args[i] >= 0 and args[i] <= 5:
-                    print(name_order[args[i]])
-                    print(self._info[args[i]], '\n')
+                if len(args) > 1:
+                    if args[i] >= 0 and args[i] <= 5:
+                        print(name_order[args[i]])
+                        print(self._info[args[i]], '\n')
+                    else:
+                        print("\n ----- Complete Info: ----- ")
+                        print("\nCompressed text:")
+                        print(self._info[0])
+                        print("\nKey:")
+                        print(self._info[1])
+                        print("\nCipher text:")
+                        print(self._info[2])
+                        print("\nPlain text:")
+                        print(self._info[3])
+                        print("\nPasses:")
+                        print(self._info[4])
+                        print("\nSeed:")
+                        print(self._info[5])
+                        break
                 else:
-                    print("\n ----- Complete Info: ----- ")
-                    print("\nCompressed text:")
-                    print(self._info[0])
-                    print("\nKey:")
-                    print(self._info[1])
-                    print("\nCipher text:")
-                    print(self._info[2])
-                    print("\nPlain text:")
-                    print(self._info[3])
-                    print("\nPasses:")
-                    print(self._info[4])
-                    print("\nSeed:")
-                    print(self._info[5])
-                    break
-
+                    if args[i] >= 0 and args[i] <= 5:
+                        print(name_order[args[i]])
+                        print(self._info[args[i]])
+                    
     # The stadard get info method, retuns the stored data values from the last encryption
     def info(self, *args) -> str | int | list[int] | None:
         """Can only recieve parameters of type int or str.\n
