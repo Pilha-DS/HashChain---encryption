@@ -15,25 +15,15 @@ config = Handler.load_config(config_path)
 has_dependencies = None
 Stable = True
 reinicios = 0
-yes_aliases = ["s", "sim", "y", "yes"]
-no_aliases = ["n", "nao", "não", "no"]
+yes_aliases = ["s", "ss", "sim", "y", "yes"]
+no_aliases = ["n", "nn", "nao", "não", "no"]
 
 # Terminal colors
 r = '\033[0m'      # Reset
-red = '\033[0;31m' # Red
-green = '\033[0;32m' # Green
-yellow = '\033[0;33m' # Yellow
-blue = '\033[0;34m' # Blue
-white = '\033[0;37m' # White
-black = '\033[0;30m' # Black
-cyan = '\033[0;36m' # Cyan
-purple = '\033[0;35m' # Purple
-gray = '\033[0;90m' # Gray
 
 # Estilos
 bold = '\033[1m'       # Bold
 italic = '\033[3m'     # Italic
-underline = '\033[4m'  # Underline
 
 
 # --- Functions ---
@@ -45,7 +35,7 @@ def close_program():
 def restart_program():
     global reinicios
     if reinicios > 100:
-        print(f"{c('y')}Numero de reinícios consecutivos excedido.{r}")
+        print(f"\n{r}{c('y')}Numero de reinícios consecutivos excedido.{r}")
         close_program()
     else:
         reinicios += 1
@@ -64,7 +54,7 @@ def main():
     has_dependencies = Handler.verify_required_modules()
     
     if config is None:
-        print(f"\n{red}O arquivo de configuração não foi carregado corretamente, as opções de criptografia padronizadas {bold}não estarão disponíveis.{r}")
+        print(f"\n{c('r')}O arquivo de configuração não foi carregado corretamente, as opções de criptografia padronizadas {bold}não estarão disponíveis.{r}")
     
     while Stable:
         if config["terminal_mode"]:
@@ -109,7 +99,7 @@ def main():
                         else:
                             texto = input(f"\n{r}{c('c', True)}Digite o texto a ser criptografado:{r} ")
                         if not texto:
-                            print(f"\n{r}{c('y')}Aviso: Falha ao tentar ler, arquivo vazio, inesistente ou não selecionado.{r}")
+                            print(f"\n{r}{c('y')}Aviso: Falha ao tentar ler, arquivo vazio, inexistente ou não selecionado.{r}")
                             print(f'{r}{c(faint=True)}\nReiniciando o programa, tente novamente.{r}')
                             restart_program()
                         while Stable:
@@ -140,7 +130,7 @@ def main():
                                 
                         match seed_type:
                             case "1":
-                                seed = Collector.get_seed_()
+                                seed = Collector.get_seed()
                             case "2":
                                 num_digits = secrets.randbelow(65) + 64
                                 seed = int("".join(str(secrets.randbelow(10)) for _ in range(num_digits)))
@@ -177,7 +167,7 @@ def main():
                                 
                         match passo_type:
                             case "1":
-                                passo = Collector.get_passes_()
+                                passo = Collector.get_passes()
                             case "2":
                                 num_passes = secrets.randbelow(64) + 8
                                 passo = [secrets.randbelow(979) + 20 for _ in range(num_passes)]
@@ -197,7 +187,10 @@ def main():
                                 continue
                             else:
                                 break
-                        no_salt = True if no_salt_input in yes_aliases else False   
+                        no_salt = True if no_salt_input in yes_aliases else False  
+                        if len(texto) > 100_000:
+                            print(f'\n{r}{c("y", faint=True)}Aviso: O texto fornecido excede 100Kb, a criptografia pode levar alguns instantes. Por favor aguarde...{r}')
+                            
                         HashChain.encrypt(texto, passo, seed, no_salt)
                         print(f"\n{c("g", True)}Criptografia realizada com sucesso.{r}")
                         print(f"\n{c('b')}Texto criptografado:{r}")
@@ -373,6 +366,8 @@ def main():
                                 print(f"{c('r')}Erro: arquivo JSON inválido. Tente novamente com um log gerado pelo programa.{r}")
                                 continue
                             try:
+                                if len(texto) > 100_000:
+                                    print(f'\n{r}{c("y", faint=True)}Aviso: A o texto criptografado fornecido excede 100Kb, a descriptografia pode levar alguns instantes. Por favor aguarde...{r}')
                                 HashChain.decrypt(texto, key)
                             except Exception:
                                 print(f"\n{c('r')}Erro: Valores para descriptografia {bold}inválidos,{r} {c('r')}verifique de o log foi adulterado.{r}")
@@ -382,7 +377,7 @@ def main():
                                 print(f'{r}{c(faint=True)}{HashChain.info(3)}{r}')
                                 
                                 while Stable:
-                                    salvar_decrip_txt = input(f'{r}{c('c', True)}\nDeseja salvar em um arquivo de texto? {r}{bold}(s/n): {r}')
+                                    salvar_decrip_txt = input(f'{r}{c('c', True)}\nDeseja salvar o texto descriptografado em um arquivo de texto? {r}{bold}(s/n): {r}')
                                     check_action(salvar_decrip_txt)
                                     if salvar_decrip_txt not in yes_aliases + no_aliases:
                                         print(f"\n{r}{c('y')}Ação inválida. Tente novamente.{r}\n")
@@ -414,6 +409,8 @@ def main():
                             texto = input(f"\n{r}{c('c', True)}Digite o texto a ser descriptografado: {r}")
                             key = input(f"\n{r}{c('c', True)}Digite a chave para descriptografia: {r}")
                             try:
+                                if len(texto) > 100_000:
+                                    print(f'\n{r}{c("y", faint=True)}Aviso: A o texto criptografado fornecido excede 100Kb, a descriptografia pode levar alguns instantes. Por favor aguarde...{r}')
                                 HashChain.decrypt(texto, key)
                             except Exception:
                                 print(f"\n{r}{c('r')}Erro: Valores para descriptografia {bold}inválidos.{r}")
@@ -438,13 +435,17 @@ def main():
                     case 3:
                         texto = input(f"\n{r}{c('c', True)}Digite o texto a ser comprimido: {r}")
                         print(f"\n{c('b')}Texto comprimido:{r}")
-                        print(f'{r}{c(faint=True)}{HashChain.compression(texto)}{r}')
+                        resultado_decompression = HashChain.compression(texto)
+                        if resultado_decompression is not None:
+                            print(f'{r}{c(faint=True)}{resultado_decompression}{r}')
                         
                     # Descompressão
                     case 4:
                         texto = input(f"\n{r}{c('c', True)}Digite o texto a ser descomprimido: {r}").upper()
                         print(f"\n{c('b')}Texto descomprimido:{r}")
-                        print(f'{r}{c(faint=True)}{HashChain.decompression(texto)}{r}')
+                        resultado_compressao = HashChain.decompression(texto)
+                        if resultado_compressao is not None:
+                            print(f'{r}{c(faint=True)}{resultado_compressao}{r}')
                         
                     # Ajuda
                     case 5:
@@ -470,7 +471,7 @@ def main():
                                     print(f"{r}{c(faint=True)}{italic} - Para usar o programa, escolha entre o modo terminal ou a interface gráfica (se disponível). Siga as instruções na tela para criptografar, descriptografar, comprimir ou descomprimir textos.")
                                 case "3":
                                     print(f"{r}{c('b')}{ajuda_input_list[2]}:{r}")
-                                    print(f"{r}{italic} - Seed:{c(faint=True)} É um número inteiro de no mínimo 8 dígitos, inicial usado para gerar a cadeia de hash.\n - {r}{italic}Passos:{c(faint=True)} Uma lista de inteiros que define as etapas da cadeia de hash.\n - {r}{italic}Salt:{c(faint=True)} Uma medida de segurança adicional que pode ser usada durante a criptografia para aumentar a aleatoriedade do processo.{r}")
+                                    print(f"{r}{italic} - Seed:{c(faint=True)} É um número inteiro de no mínimo 8 dígitos, inicial usado para gerar a cadeia de hash.\n - {r}{italic}Passos:{c(faint=True)} Uma lista de inteiros que define as etapas da cadeia de hash. (Cada inteiro deve estar entre 20 a 999)\n - {r}{italic}Salt:{c(faint=True)} Uma medida de segurança adicional que pode ser usada durante a criptografia para aumentar a aleatoriedade do processo.{r}")
                                 case "4":
                                     print(f"{r}{c('b')}{ajuda_input_list[3]}:{r}")
                                     print(f"{r}{c(faint=True)}{italic} - A descriptografia requer o texto criptografado e a chave gerada durante a criptografia. O HashChain utiliza a cadeia de hash inversa para recuperar o texto original. Durante a criptografia, esses dados podem ser salvos em um arquivo de log para facilitar a descriptografia posterior, copiando e colando o seu caminho relativo a pasta atual.")

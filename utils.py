@@ -1,60 +1,39 @@
+# Handlers imports and dependencies
+import os
+import json
+import time
+import tkinter as tk
+import importlib.util
+from pathlib import Path
+from tkinter import filedialog, messagebox
+
+# Terminal colors
+r = "\033[0m"  # Reset
+
+# Estilos
+bold = "\033[1m"  # Bold
+italic = "\033[3m"  # Italic
+
 # Inputs imports and dependencies
 class InputCollector:
     def __init__(self):
         pass
 
-    def get_action(Stable: bool) -> int:
-        while Stable:
-            action = input(
-                "\nEscolha uma ação:\n1. Criptografar Texto\n2. Descriptografar Texto\n3. Comprimir Texto\n4. Descomprimir Texto\n5. Sair\n\nDigite o número da ação desejada: "
-            ).strip()
-
-            if action not in ["1", "2", "3", "4", "5"]:
-                print("\nAção inválida. Tente novamente.")
-                continue
-            action = int(action)
-        return action
-
-    def get_action_() -> str:
-        # Prints Menu
-        print(f"[C]: Criptografar | [D]: Descriptografar | [S]: Sair")
-
-        # Initializes user_choice
-        user_choice: str = ""
-
-        while user_choice not in ["c", "d", "s"]:
-            user_choice: str = input(": ").strip().lower()
-
-            if user_choice == "s":
-                print("Closing")
-                exit()
-
-            try:
-                if user_choice not in ["c", "d"]:
-                    raise Exception(
-                        "Invalid user actions, must be [C] or [D] to proceed."
-                    )
-            except Exception as e:
-                print(e)
-
-        return user_choice
-
-    def get_seed_() -> int:
+    def get_seed() -> int:
         seed: int = 0
 
         while len(str(seed)) < 8 or not isinstance(seed, int):
-            seed = input("Digite uma seed de no minimo 8 digitos: ")
-
+            seed = input(f"\n{r}{c('c', True)}Digite uma seed de no minimo 8 digitos:{r} ")
             try:
                 if len(str(seed)) < 8:
-                    raise Exception("A seed deve ter no minimo 8 digitos.")
+                    raise Exception
                 seed = int(seed)
             except Exception as e:
-                print("Erro: ", e, " Digite uma seed valida (int).")
+                print(f'\n{r}{c('y')}A seed deve ser um número inteiro de no minimo 8 digitos. Tente novamente.')
 
         return seed
 
-    def get_passes_() -> list[int]:
+    def get_passes() -> list[int]:
 
         def is_valid_pass_(passos: list[int]) -> bool:
             if len(str(passos)) <= 0:
@@ -85,60 +64,29 @@ class InputCollector:
             try:
                 for char in raw_passos:
                     if char not in valid_chars:
-                        raise Exception("Caractere inválido.")
+                        raise Exception
                     if char != " ":
                         aux.append(char)
                     elif char == " ":
                         passos.append(int("".join(aux)))
                         aux: list[str] = []
             except Exception as e:
-                print(e)
                 return [-1]
 
             return passos
 
-        print("Escolha a sequencia de passos: ")
-
         while True:
             raw_passos: str = input(
-                "Digite os passos separados por espaços, cada um sendo um inteiro de 20 a 999. (Exemplo: 20 450 999): "
+                f"\n{r}{c("c", True)}Digite os passos separados por espaços, cada um sendo um inteiro de 20 a 999. {r}{bold}(Exemplo: 20 450 999):{r} "
             )
             passos: list[int] = conver_input_(raw_passos)
             if is_valid_pass_(passos):
                 break
             print(
-                "Input inválido. Passes devem ser inteiros de 20 a 999. Tente novamente."
+                f"\n{r}{c('y')}Input inválido. Passes devem ser números inteiros de 20 a 999. Tente novamente.{r}"
             )
 
         return passos
-
-
-# Handlers imports and dependencies
-import os
-import json
-import tkinter as tk
-from tkinter import filedialog, messagebox
-import importlib.util
-from pathlib import Path
-
-# Global
-
-# Terminal colors
-r = "\033[0m"  # Reset
-red = "\033[0;31m"  # Red
-green = "\033[0;32m"  # Green
-yellow = "\033[0;33m"  # Yellow
-blue = "\033[0;34m"  # Blue
-white = "\033[0;37m"  # White
-black = "\033[0;30m"  # Black
-cyan = "\033[0;36m"  # Cyan
-purple = "\033[0;35m"  # Purple
-gray = "\033[0;90m"  # Gray
-
-# Estilos
-bold = "\033[1m"  # Bold
-italic = "\033[3m"  # Italic
-underline = "\033[4m"  # Underline
 
 
 class Handler:
@@ -298,7 +246,7 @@ class Handler:
 
         # Verificar se o usuário selecionou um arquivo
         if caminho_arquivo:
-            print(f"Arquivo selecionado: {caminho_arquivo}")
+            print(f"\n{r}{c('g')}Arquivo selecionado: {Path(caminho_arquivo)}")
             with open(caminho_arquivo, 'r', encoding='utf-8') as arquivo:
                 conteudo = arquivo.read()
             return conteudo
@@ -340,8 +288,8 @@ class Handler:
 
     def print_menu(menu_list: list[str]):
         for i, txt in enumerate(menu_list):
-            print(f'{c(bold=True, faint=True)}{i + 1}. {r}{txt}{r}')
-
+            print(f'{c(bold=True, faint=True)}{i + 1}. {r}{txt}{r}')        
+    
 
 def c(color: str = "", bold: bool = False, italic: bool = False, underline: bool = False, faint: bool = False) -> str:
     color_aliases = {

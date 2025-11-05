@@ -1,7 +1,7 @@
-import customtkinter as ctk
-from tkinter import messagebox, scrolledtext, filedialog
 import random
 import tables
+import customtkinter as ctk
+from tkinter import messagebox, scrolledtext, filedialog
 from HashChainClass import HashChainEncryption
 
 t: HashChainEncryption = HashChainEncryption()
