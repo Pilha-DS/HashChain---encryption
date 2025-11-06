@@ -148,7 +148,7 @@ class Handler:
                 )
 
     def verify_required_modules():
-        dependencies = ["tkinter", "customtkinter", 'os', 'json', 'secrets', 'pathlib', 'datetime']
+        dependencies = ["tkinter", "customtkinter", 'os', 'json', 'secrets', 'pathlib', 'datetime', 'subprocess']
         for module in dependencies:
             if importlib.util.find_spec(module) is not None:
                 print(f"{c('g')}Atualmente o módulo {bold}{module}{r}{c('g')} está instalado.{r}")
