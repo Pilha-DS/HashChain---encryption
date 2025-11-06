@@ -1,3 +1,4 @@
+import sys
 import json
 import random
 import secrets
@@ -6,13 +7,6 @@ from tkinter import messagebox, scrolledtext, filedialog
 from HashChainClass import HashChainEncryption
 
 HashChain: HashChainEncryption = HashChainEncryption()
-
-""" def grafar(a, b, c):
-    t.encrypt(a, b, c)
-    
-def desgrafar(a, b, c):
-    if a and b and c:
-        t.decrypt(a, b, c) """
 
 # Configuração inicial
 ctk.set_appearance_mode("dark")
@@ -34,14 +28,6 @@ passo_var = ctk.StringVar()
 modo_var = ctk.StringVar(value="manual")
 cripto_resultado = ""
 chave = ""
-
-# Layout fixo
-
-# content_frame = ctk.CTkFrame(root)
-# content_frame.pack(side="right", fill="both", expand=True)
-
-# menu_frame = ctk.CTkFrame(root, width=180, corner_radius=0)
-# menu_frame.pack(side="left", pady=(20, 0), padx=10, fill="y")
 
 content_frame = ctk.CTkFrame(root, fg_color=COLOR_BG)
 content_frame.pack(side="right", fill="both", expand=True)
@@ -79,7 +65,7 @@ def interface_menu():
         root.quit()
         root.destroy()
 
-    ctk.CTkButton(content_frame, text="Voltar ao terminal", command=close_interface).pack(pady=10)
+    ctk.CTkButton(content_frame, text="Voltar ao terminal", command=close_interface).pack(pady=10, padx=10)
 
 
 
@@ -194,23 +180,6 @@ def interface_descriptografar():
         content_frame, text="Carregar de Arquivo JSON", command=carregar_json
     ).pack(pady=5, padx=20)
 
-    """ def carregar_chave():
-        path = filedialog.askopenfilename(filetypes=[("TXT", "*.txt")])
-        if path:
-            with open(path, "r", encoding="utf-8") as f:
-                for line in f.read().splitlines():
-                    if line.startswith("Passo:"):
-                        passo_var.set(line.split(":")[1].strip())
-                    elif line.startswith("Seed:"):
-                        seed_var.set(line.split(":")[1].strip()) """
-    # ctk.CTkButton(content_frame, text="Carregar Chave", command=carregar_chave).pack(pady=5, padx=20)
-
-    # ctk.CTkLabel(content_frame, text="Modo de descriptografia:").pack(anchor="w", padx=20, pady=(10, 0))
-    # ctk.CTkRadioButton(content_frame, text="Automático", variable=modo_var, value="auto").pack(anchor="w", padx=20)
-    # ctk.CTkRadioButton(content_frame, text="Manual", variable=modo_var, value="manual").pack(anchor="w", padx=20)
-    """ ctk.CTkLabel(content_frame, text="Passo:").pack(anchor="w", padx=20, pady=(10, 0))
-    ctk.CTkEntry(content_frame, textvariable=passo_var).pack(padx=20, fill="x") """
-
     ctk.CTkButton(
         content_frame,
         text="Descriptografar",
@@ -254,10 +223,6 @@ def mostrar_resultado(titulo, is_cripto=False):
         ).pack(pady=10)
 
     else:
-        """result_box = scrolledtext.ScrolledText(content_frame, height=12, font=("Consolas", 12))
-        result_box.pack(padx=20, pady=10, fill="both", expand=True)
-        result_box.insert("1.0", HashChain.info(3))
-        result_box.configure(state="disabled")"""
         ctk.CTkLabel(content_frame, text="Texto descriptografado:", anchor="w").pack(
             pady=(5, 0), padx=(20, 0), fill="x"
         )
