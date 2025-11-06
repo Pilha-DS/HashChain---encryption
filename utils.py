@@ -92,6 +92,14 @@ class InputCollector:
 class Handler:
     def __init__(self):
         pass
+    
+    def limpar_terminal():
+        # Windows
+        if os.name == 'nt':
+            os.system('cls')
+        # Linux / macOS
+        else:
+            os.system('clear')
 
     def find_config_file() -> Path | None:
         start_path = Path(".")
