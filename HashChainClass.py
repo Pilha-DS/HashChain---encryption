@@ -109,8 +109,8 @@ class HashChainEncryption:
                     
     # The stadard get info method, retuns the stored data values from the last encryption
     def info(self, *args) -> str | int | list[int] | None:
-        """Can only recieve parameters of type int or str.\n
-        Returns the stored data based on the parameters given, if mulltiple arguments are given returns a list of the data."""
+        
+        """Can only recieve parameters of type int or str.\n\nReturns the stored data based on the parameters given, if mulltiple arguments are given returns a list of the data.\n\n0: Compressed cipher text\n\n1: Key\n\n2: Cipher text\n\n3: Plain text"""
         
         if not args:
             return None

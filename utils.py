@@ -92,6 +92,14 @@ class InputCollector:
 class Handler:
     def __init__(self):
         pass
+    
+    def limpar_terminal():
+        # Windows
+        if os.name == 'nt':
+            os.system('cls')
+        # Linux / macOS
+        else:
+            os.system('clear')
 
     def find_config_file() -> Path | None:
         start_path = Path(".")
@@ -140,7 +148,7 @@ class Handler:
                 )
 
     def verify_required_modules():
-        dependencies = ["tkinter", "customtkinter", 'os', 'json', 'secrets', 'pathlib', 'datetime']
+        dependencies = ["tkinter", "customtkinter", 'os', 'json', 'secrets', 'pathlib', 'datetime', 'subprocess']
         for module in dependencies:
             if importlib.util.find_spec(module) is not None:
                 print(f"{c('g')}Atualmente o módulo {bold}{module}{r}{c('g')} está instalado.{r}")

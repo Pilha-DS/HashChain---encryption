@@ -3,6 +3,7 @@ import os
 import json
 import secrets
 import datetime
+import subprocess
 from pathlib import Path
 from utils import Handler, InputCollector, c
 from HashChainClass import HashChainEncryption
@@ -39,6 +40,7 @@ def restart_program():
         close_program()
     else:
         reinicios += 1
+        Handler.limpar_terminal()
         main()
 
 def check_action(user_input):
@@ -47,7 +49,7 @@ def check_action(user_input):
 
 # Will handle user input, function calls and the interface (WiP).
 def main():
-    global has_dependencies
+    global has_dependencies, config
     
     print(f"\nBem-vindo ao sistema de criptografia {bold}HashChain.{r}\n {italic}- Para {bold}usar a interface{r}{italic} você deve ter as bibliotecas {r}{bold}tkinter{r}{italic} e {r}{bold}customtkinter{r}{italic} instaladas.{r}")
     print(f"{italic} - Para {bold}reiniciar{r}{italic} ou {bold}sair{r}{italic} a qualquer momento, digite {bold}'R' {r}{italic}/{bold} 'r'{r}{italic} ou {bold}'E'{r}{italic} /{bold} 'e'{r}.\n")
@@ -496,12 +498,13 @@ def main():
                 config["terminal_mode"] = True
                 break
 
-            from interface import root, interface_menu
             try:
-                interface_menu()
-                root.mainloop()
-            except Exception:
+                subprocess.run(["python", "interface.py"])
+            except Exception as e:
                 close_program()
+                
+            print(f'\n{r}{c(faint=True)}Voltando ao terminal...{r}')
+            config["terminal_mode"] = True
     
 # Handles key actions.
 if __name__ == "__main__":
