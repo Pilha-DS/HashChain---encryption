@@ -300,6 +300,8 @@ def executar_criptografia(texto, seed, passo_str, has_salt, padronizar):
                 ]
             else:
                 passo = [int(x) for x in passo_str.split()]
+                if min(passo) < 20 or max(passo) > 999:
+                    raise Exception
 
         except Exception as e:
             messagebox.showerror(
