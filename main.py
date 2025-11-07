@@ -189,7 +189,7 @@ def main():
                                 continue
                             else:
                                 break
-                        no_salt = True if no_salt_input in yes_aliases else False  
+                        no_salt = False if no_salt_input in yes_aliases else True  
                         if len(texto) > 100_000:
                             print(f'\n{r}{c("y", faint=True)}Aviso: O texto fornecido excede 100Kb, a criptografia pode levar alguns instantes. Por favor aguarde...{r}')
                             
