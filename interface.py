@@ -219,7 +219,7 @@ def mostrar_resultado(titulo, is_cripto=False):
         result_box2.configure(state="disabled")
 
         ctk.CTkButton(
-            content_frame, text="Salvar Arquivos", command=salvar_em_arquivos
+            content_frame, text="Salvar Arquivo", command=salvar_em_arquivos
         ).pack(pady=10)
 
     else:
@@ -311,7 +311,7 @@ def executar_criptografia(texto, seed, passo_str, has_salt, padronizar):
             return
 
         try:
-            no_salt = False if has_salt == 0 else True
+            no_salt = True if has_salt == 0 else False
             HashChain.encrypt(texto, passo, seed_val, no_salt)
         except Exception as e:
             messagebox.showerror("Erro", f"Ocorreu um erro durante a criptografia: {e}")
