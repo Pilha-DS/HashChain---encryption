@@ -27,7 +27,7 @@ Clonar o repositório:
 git clone https://github.com/SEU-USER/HashChain---encryption.git
 cd HashChain---encryption
 ```
-Não há dependências externas; o projeto usa apenas a biblioteca padrão do Python.
+há dependências externas; o projeto usa biblioteca padrão do Python, e algumas mais avançadas como customTKinter, Secrets, TKinter.
 
 ## Conceitos-chave
 - **Passes (`pass_`)**: lista de inteiros (3 dígitos na chave) que define como o ciphertext é segmentado e qual tabela usar por segmento.
