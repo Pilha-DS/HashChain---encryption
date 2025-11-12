@@ -8,7 +8,6 @@ HCC é um esquema de criptografia por cadeias de substituição determinísticas
 - Instalação / Setup
 - Conceitos-chave
 - Uso rápido
-- API da classe `HashChainEncryption`
 - Formato da chave (com e sem salt)
 - Modo debug
 - Boas práticas e considerações
