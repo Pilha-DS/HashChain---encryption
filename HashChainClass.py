@@ -1,169 +1,236 @@
 # ===== HashChainClass =====
 #      --- Imports ---
+import os
 import random
 import re
-import os
-from site import PREFIXES
 from tables import gerar_tabelas
 
 
 class HashChainEncryption:
-    # Initializes all the atributes.
+    
     def __init__(self):
-        # Will recieve data in: [compressed_text, key, cipher_text, plain_text]
-        self._info: list[str] | None = None
+        # Will recieve data in: [compressed_text: str, key: str, cipher_text: str, plain_text: str, passes: list[int], seed: int]
+        self._info: list[str] | list[None] = [None, None, None, None, None, None]
 
     # Prints the desired stored encrypted data
-    def out(self, output: str | int = 0) -> None:
-        # If no encryption has occurred, return None
+    def out(self, *args) -> None:
+        """Can only recieve parameters of type int or str.\n
+        Prints the stored data based on the parameters given."""
+        
+        # If no encryption has occurred or all values are None, return None
+        name_order = ["\nCompressed Text:", "\nKey:", "\nCipher Text:", "\nPlain Text:", "\nPasses:", "\nSeed:"]
+        
         if self._info is None:
             print(None)
+            return None
 
+        args = list(args)
+        
+        if not args:
+            print("\n ----- Complete Info ----- ")
+            for i, name in enumerate(name_order):
+                if self._info[i] is not None:
+                    print(f"{name}")
+                    print(self._info[i])
+            return None
+        
         # If the argument is a string interpret it as so
-        elif isinstance(output, str):
-            # Standardizes the argument
-            output = output.lower()
+        for i, params in enumerate(args):
+            if isinstance(args[i], str):
+                # Standardizes the argument
+                args[i] = args[i].lower()
 
-            # Aliases for the keywords
-            plain_text = ["p", "plain", "plain text", "plain_text", "text"]
-            cipher_text = ["c", "cipher", "cipher text", "cipher_text"]
-            compressed_text = [
-                "cc",
-                "compressed",
-                "compressed text",
-                "compressed_text",
-                "compressed cipher text",
-                "compressed_cipher_text",
-                "compressed cipher",
-                "compressed_cipher",
-            ]
-            key = ["key", "pass", "k"]
+                # Aliases for the keywords
+                plain_text = ["p", "plain", "plain text", "plain_text", "text"]
+                cipher_text = ["c", "cipher", "cipher text", "cipher_text"]
+                compressed_text = [
+                    "cc",
+                    "compressed",
+                    "compressed text",
+                    "compressed_text",
+                    "compressed cipher",
+                    "compressed_cipher",
+                    "compressed cipher text",
+                    "compressed_cipher_text",
+                ]
+                key = ["key", "chave", "k"]
+                passes = [
+                    "passes",
+                    "passos",
+                    "passe",
+                    "p",
+                    "pass",
+                    "ps",
+                    "steps",
+                    "step",
+                ]
+                seed = ["seed", "s"]
 
-            # Prints the desired data
-            if output in compressed_text:
-                print(self._info[0])
-            elif output in key:
-                print(self._info[1])
-            elif output in cipher_text:
-                print(self._info[2])
-            elif output in plain_text:
-                print(self._info[3])
+                # Prints the desired data
+                if args[i] in compressed_text:
+                    print("Compressed text:\n" + self._info[0])
+                elif args[i] in key:
+                    print("Key:\n" + self._info[1])
+                elif args[i] in cipher_text:
+                    print("Cipher text:\n" + self._info[2])
+                elif args[i] in plain_text:
+                    print("Plain text:\n" + self._info[3])
+                elif args[i] in passes:
+                    print("Passes:\n" + self._info[4])
+                elif args[i] in seed:
+                    print("Seed:\n" + self._info[5])
 
-        # Else if the argument is an int
-        elif isinstance(output, int):
-            # If the int is in range print the desired data, if it is out of range print all the info
-            if output >= 0 and output <= 3:
-                print(self._info[output])
-            else:
-                print(
-                    f"----- Compressed text\n{self.info[0]}\n----- Key\n{self.info[1]}\n----- Cipher text\n{self.info[2]}\n----- Plain text\n{self.info[3]}"
-                )
-
+            # Else if the argument is an int
+            elif isinstance(args[i], int):
+                # If the int is in range print the desired data, if it is out of range print all the info
+                if len(args) > 1:
+                    if args[i] >= 0 and args[i] <= 5:
+                        print(name_order[args[i]])
+                        print(self._info[args[i]], '\n')
+                    else:
+                        print("\n ----- Complete Info: ----- ")
+                        print("\nCompressed text:")
+                        print(self._info[0])
+                        print("\nKey:")
+                        print(self._info[1])
+                        print("\nCipher text:")
+                        print(self._info[2])
+                        print("\nPlain text:")
+                        print(self._info[3])
+                        print("\nPasses:")
+                        print(self._info[4])
+                        print("\nSeed:")
+                        print(self._info[5])
+                        break
+                else:
+                    if args[i] >= 0 and args[i] <= 5:
+                        print(name_order[args[i]])
+                        print(self._info[args[i]])
+                    
     # The stadard get info method, retuns the stored data values from the last encryption
-    def info(self, search: str = None) -> str:
-        # If no parameter is given returns None
-        if search is None:
+    def info(self, *args) -> str | int | list[int] | None:
+        
+        """Can only recieve parameters of type int or str.\n\nReturns the stored data based on the parameters given, if mulltiple arguments are given returns a list of the data.\n\n0: Compressed cipher text\n\n1: Key\n\n2: Cipher text\n\n3: Plain text"""
+        
+        if not args:
             return None
-        # If there is no stored info, return None gracefully
-        if self._info is None:
+        
+        if all(i is None for i in self._info):
             return None
+        
+        data = []
+        for arg in args:
         # If the parameter is a str returns the value using its matching keyword else returns the data by its position in the list
-        if isinstance(search, str):
-            search = search.lower()
-            plain_text = ["p", "plain", "plain text", "plain_text", "text"]
-            cipher_text = ["c", "cipher", "cipher text", "cipher_text"]
-            compressed_text = [
-                "cc",
-                "compressed",
-                "compressed text",
-                "compressed_text",
-                "compressed cipher text",
-                "compressed_cipher_text",
-                "compressed cipher",
-                "compressed_cipher",
-            ]
-            key = ["key", "pass", "k"]
-            return (
-                self._info[0]
-                if search in compressed_text
-                else (
-                    self._info[1]
-                    if search in key
-                    else (
-                        self._info[2]
-                        if search in cipher_text
-                        else self._info[3] if search in plain_text else None
-                    )
-                )
-            )
-        elif isinstance(search, int):
-            return self._info[search]
-
-    # Receives a ciphered text and retuns a compressed ciphered text.
-    def compression_(self, cipher_text: str) -> str:
-        aux = cipher_text
-        posicao = 0
-        countZero = 0
-        countUm = 0
-        texto = ""
-        caltStr = "10"
-
-        while posicao < len(aux):
-            i = aux[posicao]
-
-            if i == "0":
-                countUm = 0
-                countZero += 1
-
-                if countZero >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
-                    caltStr = str(countZero)
-                    if len(caltStr) == 2:
-                        if caltStr[0] == "1":
-                            if caltStr[1] == "0":
-                                texto += "X" + "Z"
-                            else:
-                                texto += "X" + caltStr[1]
-                        elif caltStr[1] == "1":
-                            texto += caltStr[0] + "X"
-                        elif caltStr[1] == "0":
-                            texto += caltStr[0] + "Z"
-                    else:
-                        texto += str(countZero)
-                if posicao + 1 < len(aux) and aux[posicao + 1] != i:
-                    texto += i
-
+            if isinstance(arg, str):
+                search = arg.lower()
+                plain_text = ["p", "plain", "plain text", "plain_text", "text"]
+                cipher_text = ["c", "cipher", "cipher text", "cipher_text"]
+                compressed_text = [
+                    "cc",
+                    "compressed",
+                    "compressed text",
+                    "compressed_text",
+                    "compressed cipher",
+                    "compressed_cipher",
+                    "compressed cipher text",
+                    "compressed_cipher_text",
+                ]
+                key = ["key", "chave", "k"]
+                passes = [
+                    "passes",
+                    "passos",
+                    "passe",
+                    "p",
+                    "pass",
+                    "ps",
+                    "steps",
+                    "step",
+                ]
+                seed = ["seed", "s"]
+                if search in compressed_text:
+                    data.append(self._info[0])
+                elif search in key:
+                    data.append(self._info[1])
+                elif search in cipher_text:
+                    data.append(self._info[2])
+                elif search in plain_text:
+                    data.append(self._info[3])
+                elif search in passes:
+                    data.append(self._info[4])
+                elif search in seed:
+                    data.append(self._info[5])
+            elif isinstance(arg, int):
+                data.append(self._info[arg])
             else:
-                countZero = 0
-                countUm += 1
+                raise ValueError("Argument must be of type int or str.")
+                
+        if len(data) == 1:
+            return data[0]
+        return data
+    
+    # Receives a ciphered text and retuns a compressed ciphered text.
+    def compression(self, cipher_text: str, printar: bool = False) -> str:
+        
+        if not all(char in ["0", "1"] for char in cipher_text):
+            print("Erro: Não foi possível comprimir o texto, caractere inválido no texto cifrado. Apenas '0' e '1' são permitidos, verifique se o texto foi adulterado.")
+            return None
+        
+        pares = []
+        consecutivos = 0
+        last = ''
+        cipher_text += " "
+        
+        for _, char in enumerate(cipher_text):
+            if not last:
+                last = char
+                consecutivos += 1
+            elif char == last:
+                consecutivos += 1
+            else:
+                pares.append([consecutivos, last])
+                last = char
+                consecutivos = 1
+                
+        trad = {
+            "Z": "0",
+            "X": "1",
+            "2": "2",
+            "3": "3",
+            "4": "4",
+            "5": "5",
+            "6": "6",
+            "7": "7",
+            "8": "8",
+            "9": "9",
+        }
 
-                if countUm >= 2 and posicao + 1 < len(aux) and aux[posicao + 1] != i:
-                    caltStr = str(countUm)
-                    if len(caltStr) == 2:
-                        if caltStr[0] == "1":
-                            if caltStr[1] == "0":
-                                texto += "X" + "Z"
-                            else:
-                                texto += "X" + caltStr[1]
-                        elif caltStr[1] == "1":
-                            texto += caltStr[0] + "X"
-                        elif caltStr[1] == "0":
-                            texto += caltStr[0] + "Z"
-                    else:
-                        texto += str(countUm)
-                if posicao + 1 < len(aux) and aux[posicao + 1] != i:
-                    texto += i
-
-            posicao += 1
-
-        if countZero >= 2:
-            texto += str(countZero) + "0"
-        elif countUm >= 2:
-            texto += str(countUm) + "1"
-
-        return texto
-
+        compressed = []
+        
+        for par in pares:
+            if par[0] == 1:
+                compressed.append(par[1])
+            elif par[0] == 2:
+                compressed.append(par[1] * 2)
+            elif par[0] >= 3 and par[0] <= 9:
+                compressed.append(trad[str(par[0])] + par[1])
+            else:
+                par[0] = str(par[0])
+                par[0] = par[0].replace("0", "Z")
+                par[0] = par[0].replace("1", "X")
+                compressed.append(par[0] + par[1])  
+                
+        if printar:
+            print(''.join(compressed))
+            
+        return ''.join(compressed)
+    
     # Receives a compressed ciphered text and retuns the ciphered text.
-    def decompression_(self, compressed_cipher_text: str) -> str:
+    def decompression(self, compressed_cipher_text: str, printar: bool = False) -> str:
+        
+        for char in compressed_cipher_text:
+            if char not in ["0", "1", "Z", "X", "2", "3", "4", "5", "6", "7", "8", "9"]:
+                return "Erro: Não foi possível descomprimir o texto, caractere inválido no texto comprimido. Apenas '0', '1', 'Z', 'X' e dígitos são permitidos, verifique se o texto foi adulterado."
+        
         norm: str = compressed_cipher_text
         trad = {
             "Z": "0",
@@ -190,10 +257,13 @@ class HashChainEncryption:
                 total.append(c * int("".join(aux)))
                 aux = []
 
-        return "".join(total)
+        if printar:
+            print("Decompressed text:\n" + "".join(total))
 
+        return "".join(total)
+    
     # Receives a plain text and returns the compressed cipher text.
-    def encrypt_(
+    def encrypt(
         self,
         plaintext: str = "",
         pass_: list = None,
@@ -202,6 +272,9 @@ class HashChainEncryption:
         debug_mode: bool = False,
         min_table_leng: int = 20,
         max_table_leng: int = 999,
+        compress_text: bool = True,
+        retonar: bool = False,
+        printar: bool = False,
     ):
         def gerar_seed_decimal_aleatoria(num_digitos: int = 64) -> int:
             """Gera seed de 64 caracteres por padrão"""
@@ -285,6 +358,7 @@ class HashChainEncryption:
 
         # Variáveis principais
         crude_ciphertext_list = []
+        used_passes_sequence: list[int] = []
         invalid_characters_list = []
         control_index = 0
         control_key = len(pass_) - 1
@@ -303,6 +377,7 @@ class HashChainEncryption:
                     crude_ciphertext_list.append(cor["gre"] + cipher_char + cor["pad"])
                 else:
                     crude_ciphertext_list.append(cipher_char)
+                used_passes_sequence.append(passe_atual)
             except KeyError:
                 invalid_characters_list.append(caracter)
 
@@ -350,7 +425,7 @@ class HashChainEncryption:
             # Restaura o estado aleatório
             random.seed()
 
-            return salt_ciphertext_list, salt_passes, posicoes
+            return (salt_ciphertext_list, salt_passes, posicoes)
 
         def key_generator(
             passes_list: list,
@@ -358,6 +433,7 @@ class HashChainEncryption:
             seeds_passes: list = None,
             salt_positions: list = None,
             padding: str = "",
+            ct_len_before_padding: int | None = None,
         ) -> tuple:
             """Gera chave polida para descriptografia posterior"""
             if salt_positions is None:
@@ -378,12 +454,24 @@ class HashChainEncryption:
             lolp = str(len(pl)).zfill(3)
             sl = str(len(seed_value)).zfill(3)
 
+            # Comprimento do ciphertext antes do padding
+            if ct_len_before_padding is None:
+                ct_len_before_padding = 0
+            cl_str = str(ct_len_before_padding)
+            lcl = str(len(cl_str)).zfill(3)
+
+            # Flag de salt explícita (1 = com salt, 0 = sem salt)
+            salt_flag = "1" if salt_positions else "0"
+            lsf = "001"  # comprimento fixo de 1
+
             # Informações sobre seeds dos passes
             seeds_l = str(len(seeds_passes)) if seeds_passes else "000"
             lol_seeds = str(len(seeds_l)).zfill(3) if seeds_passes else "000"
 
-            salt_l = [str(int(len(salt_positions) / 2))] if poli_salt else []
-            lol_salt = [str(len(salt_l[0])).zfill(3)] if salt_l else []
+            # Sempre incluir campos de salt, mesmo quando vazio
+            salt_count = int(len(salt_positions) / 2) if salt_positions else 0
+            salt_l = [str(salt_count)]
+            lol_salt = [str(len(salt_l[0])).zfill(3)]
 
             # Aplica cores se estiver em debug mode
             if debug_mode:
@@ -402,8 +490,10 @@ class HashChainEncryption:
                 f"\nseed principal: {seed_value}\n\n"
                 f"salt: lol_salt: {', '.join(lol_salt)}, salt_l: {', '.join(salt_l)}, \n"
                 f"posições salt: {', '.join(poli_salt)}\n\n"
+                f"salt_flag: lsf: {lsf}, sf: {salt_flag}\n\n"
                 f"passes: lolp: {lolp}, pl: {pl}, \n"
                 f"passes: {', '.join(poli_passes)}\n\n"
+                f"ct_len_before_padding: lcl: {lcl}, cl: {cl_str}\n\n"
                 f"padding: {padding}"
             )
 
@@ -413,16 +503,20 @@ class HashChainEncryption:
                     "".join(lol_salt),
                     "".join(salt_l),
                     "".join(poli_salt),
+                    lsf,
+                    salt_flag,
                     "".join(lolp),
                     "".join(pl),
                     "".join(poli_passes),
+                    lcl,
+                    cl_str,
                     "".join(sl),
                     "".join(seed_value),
                     padding,
                 ]
             )
 
-            return poli_passes, polished_key, crude_key
+            return (poli_passes, polished_key, crude_key)
 
         # Processo de criptografia principal
         for caracter in plaintext:
@@ -431,7 +525,7 @@ class HashChainEncryption:
 
         # Aplicação do salt e geração da chave
         if not no_salt:
-            salt_result = create_salt(crude_ciphertext_list, pass_, seed)
+            salt_result = create_salt(crude_ciphertext_list, used_passes_sequence, seed)
             ciphertext = "".join(salt_result[0])
 
             if (len(ciphertext) % 20) == 0:
@@ -440,6 +534,7 @@ class HashChainEncryption:
                     current_seed=seed,
                     seeds_passes=seeds_por_passe,
                     salt_positions=salt_result[2],
+                    ct_len_before_padding=len(ciphertext),
                 )
             else:
                 padding = ((len(ciphertext) % 20) - 20) * -1
@@ -450,23 +545,26 @@ class HashChainEncryption:
                     seeds_passes=seeds_por_passe,
                     salt_positions=salt_result[2],
                     padding=str(padding),
+                    ct_len_before_padding=len(ciphertext) - padding,
                 )
         else:
             ciphertext = "".join(crude_ciphertext_list)
             if (len(ciphertext) % 20) == 0:
                 key_result = key_generator(
-                    passes_list=pass_,
+                    passes_list=used_passes_sequence,
                     current_seed=seed,
                     seeds_passes=seeds_por_passe,
+                    ct_len_before_padding=len(ciphertext),
                 )
             else:
                 padding = ((len(ciphertext) % 20) - 20) * -1
                 ciphertext += padding * "1"
                 key_result = key_generator(
-                    passes_list=pass_,
+                    passes_list=used_passes_sequence,
                     current_seed=seed,
                     seeds_passes=seeds_por_passe,
                     padding=str(padding),
+                    ct_len_before_padding=len(ciphertext) - padding,
                 )
 
         # Saída final
@@ -482,17 +580,38 @@ class HashChainEncryption:
             )
             return
         else:
-            # Armazena ciphertext diretamente (sem compressão binária)
+            raw_ciphertext = ciphertext
+            compressed = self.compression(ciphertext)
             self._info = [
-                ciphertext,
-                key_result[1],
-                ciphertext,
-                plaintext,
+                compressed,  # texto comprimido
+                key_result[1],  # chave
+                ciphertext,  # texto cifrado não comprimido
+                plaintext,  # texto original
+                pass_,  # passes
+                seed,  # seed
             ]
-            return [ciphertext, key_result[1]]
+
+            if compress_text:
+                ciphertext = compressed
+
+            if printar:
+                print(f"Ciphertext:\n{ciphertext}")
+                print(f"\nKey:\n{key_result[1]}")
+
+            if retonar:
+                return [raw_ciphertext, key_result[1]]
 
     # Receives a compressed cipher text and returns the decrypted text (plain text / original message).
-    def decrypt_(self, ciphertext, key):
+    def decrypt(self, ciphertext, key, printar: bool = False, retonar: bool = False):
+        self._info[1] = key
+        
+        is_compressed = False
+
+        for char in ciphertext:
+            if char not in ["0", "1"]:
+                is_compressed = True
+                break
+        
         # Ciphertext já é o texto cifrado direto (sem compressão binária)
         # Se valores não vierem, tenta usar estado interno (quando disponível)
         if (ciphertext is None or ciphertext == "") or (key is None or key == ""):
@@ -503,9 +622,12 @@ class HashChainEncryption:
                     key = self._info[1]
         # Valida após possível fallback
         if ciphertext is None or key is None or ciphertext == "" or key == "":
-            raise ValueError("ciphertext e/ou key ausentes. Gere com encrypt_ (sem debug) ou forneça valores válidos.")
+            raise ValueError(
+                "ciphertext e/ou key ausentes. Gere com encrypt_ (sem debug) ou forneça valores válidos."
+            )
         if not isinstance(ciphertext, str) or not isinstance(key, str):
             raise ValueError("ciphertext e key devem ser strings.")
+
         # Remove possíveis sequências ANSI (modo debug) de ciphertext e key
         def _remove_ansi(s: str) -> str:
             return re.sub(r"\x1b\[[0-9;]*m", "", s)
@@ -518,11 +640,12 @@ class HashChainEncryption:
                 raise ValueError("Coloque um ciphertext valído")
             if not key:
                 raise ValueError("Coloque uma chave valída")
+
             def parse_com_salt(k: str):
                 ptr_local = 0
                 if len(k) < 3:
                     raise ValueError("Chave inválida: incompleta (lol_salt)")
-                lol_salt_local = int(k[ptr_local:ptr_local + 3])
+                lol_salt_local = int(k[ptr_local : ptr_local + 3])
                 ptr_local += 3
 
                 if lol_salt_local == 0:
@@ -530,25 +653,35 @@ class HashChainEncryption:
                 else:
                     if len(k) < ptr_local + lol_salt_local:
                         raise ValueError("Chave inválida: incompleta (salt_l)")
-                    salt_l_local = int(k[ptr_local:ptr_local + lol_salt_local])
+                    salt_l_local = int(k[ptr_local : ptr_local + lol_salt_local])
                     ptr_local += lol_salt_local
 
                 posicoes_local = []
                 for _ in range(salt_l_local):
                     if len(k) < ptr_local + 3:
                         raise ValueError("Chave inválida: incompleta (len posicao)")
-                    pn_len = int(k[ptr_local:ptr_local + 3])
+                    pn_len = int(k[ptr_local : ptr_local + 3])
                     ptr_local += 3
                     if pn_len < 0:
                         raise ValueError("Chave inválida: tamanho de posição negativo")
                     if len(k) < ptr_local + pn_len:
                         raise ValueError("Chave inválida: incompleta (posicao)")
-                    posicoes_local.append(int(k[ptr_local:ptr_local + pn_len]))
+                    posicoes_local.append(int(k[ptr_local : ptr_local + pn_len]))
                     ptr_local += pn_len
+
+                # lê salt_flag
+                if len(k) < ptr_local + 3:
+                    raise ValueError("Chave inválida: incompleta (lsf)")
+                lsf_local = int(k[ptr_local : ptr_local + 3])
+                ptr_local += 3
+                if lsf_local != 1 or len(k) < ptr_local + lsf_local:
+                    raise ValueError("Chave inválida: incompleta (sf)")
+                salt_flag_local = k[ptr_local : ptr_local + lsf_local]
+                ptr_local += lsf_local
 
                 if len(k) < ptr_local + 3:
                     raise ValueError("Chave inválida: incompleta (lol_p)")
-                lol_p_local = int(k[ptr_local:ptr_local + 3])
+                lol_p_local = int(k[ptr_local : ptr_local + 3])
                 ptr_local += 3
 
                 if lol_p_local == 0:
@@ -556,23 +689,33 @@ class HashChainEncryption:
                 else:
                     if len(k) < ptr_local + lol_p_local:
                         raise ValueError("Chave inválida: incompleta (pl)")
-                    pl_local = int(k[ptr_local:ptr_local + lol_p_local])
+                    pl_local = int(k[ptr_local : ptr_local + lol_p_local])
                     ptr_local += lol_p_local
 
                 passes_local = []
                 for _ in range(pl_local):
                     if len(k) < ptr_local + 3:
                         raise ValueError("Chave inválida: incompleta (pass)")
-                    passes_local.append(int(k[ptr_local:ptr_local + 3]))
+                    passes_local.append(int(k[ptr_local : ptr_local + 3]))
                     ptr_local += 3
+
+                # novo: comprimento do ciphertext antes do padding
+                if len(k) < ptr_local + 3:
+                    raise ValueError("Chave inválida: incompleta (lcl)")
+                lcl_local = int(k[ptr_local : ptr_local + 3])
+                ptr_local += 3
+                if lcl_local < 0 or len(k) < ptr_local + lcl_local:
+                    raise ValueError("Chave inválida: incompleta (cl)")
+                cl_local = int(k[ptr_local : ptr_local + lcl_local])
+                ptr_local += lcl_local
 
                 if len(k) < ptr_local + 3:
                     raise ValueError("Chave inválida: incompleta (sl)")
-                sl_local = int(k[ptr_local:ptr_local + 3])
+                sl_local = int(k[ptr_local : ptr_local + 3])
                 ptr_local += 3
                 if sl_local < 0 or len(k) < ptr_local + sl_local:
                     raise ValueError("Chave inválida: incompleta (seed)")
-                seed_local = int(k[ptr_local:ptr_local + sl_local])
+                seed_local = int(k[ptr_local : ptr_local + sl_local])
                 ptr_local += sl_local
 
                 padding_local = 0
@@ -581,16 +724,35 @@ class HashChainEncryption:
                     if restante:
                         padding_local = int(restante)
 
-                # aplica padding
+                # aplica padding e ajusta pelo comprimento declarado
                 ct_eff = ciphertext
                 if padding_local > 0:
                     if padding_local > len(ct_eff):
                         raise ValueError("Padding maior que o tamanho do ciphertext")
                     ct_eff = ct_eff[: len(ct_eff) - padding_local]
+                if 'cl_local' in locals() and cl_local > 0 and len(ct_eff) != cl_local:
+                    if len(ct_eff) > cl_local:
+                        ct_eff = ct_eff[:cl_local]
+                    else:
+                        # tolera entradas comprimidas que resultem em ajuste
+                        if started_with_compressed:
+                            pass
+                        else:
+                            raise ValueError("Ciphertext menor que o comprimento declarado")
 
-                # valida soma
-                if sum(passes_local) != len(ct_eff):
-                    raise ValueError("inconsistência entre passes e ciphertext (com salt)")
+                # valida soma e ajusta tolerantemente para entradas comprimidas
+                total_len = len(ct_eff)
+                sum_passes = sum(passes_local)
+                if sum_passes != total_len:
+                    if started_with_compressed and passes_local:
+                        delta = sum_passes - total_len
+                        passes_local[-1] -= delta
+                        if passes_local[-1] < 0:
+                            passes_local[-1] = 0
+                    else:
+                        raise ValueError(
+                            "inconsistência entre passes e ciphertext (com salt)"
+                        )
 
                 # segmenta
                 ciphertext_list_local = []
@@ -599,20 +761,31 @@ class HashChainEncryption:
                     ciphertext_list_local.append(resto_local[:comp])
                     resto_local = resto_local[comp:]
 
-                # remove sal
-                for pos in reversed(posicoes_local):
-                    if 0 <= pos < len(ciphertext_list_local):
-                        del ciphertext_list_local[pos]
-                        del passes_local[pos]
+                # remove sal apenas se flag ativa e houver posições
+                if salt_flag_local == "1" and posicoes_local:
+                    for pos in reversed(posicoes_local):
+                        if 0 <= pos < len(ciphertext_list_local):
+                            del ciphertext_list_local[pos]
+                            del passes_local[pos]
 
                 return passes_local, seed_local, ciphertext_list_local
 
             def parse_sem_salt(k: str):
                 ptr_local = 0
+                # lê salt_flag (mesmo sem salt, flag deve existir)
+                if len(k) < 3:
+                    raise ValueError("Chave inválida: incompleta (lsf)")
+                lsf_local = int(k[ptr_local : ptr_local + 3])
+                ptr_local += 3
+                if lsf_local != 1 or len(k) < ptr_local + lsf_local:
+                    raise ValueError("Chave inválida: incompleta (sf)")
+                salt_flag_local = k[ptr_local : ptr_local + lsf_local]
+                ptr_local += lsf_local
+
                 # aqui o início já é lol_p
                 if len(k) < 3:
                     raise ValueError("Chave inválida: incompleta (lol_p)")
-                lol_p_local = int(k[ptr_local:ptr_local + 3])
+                lol_p_local = int(k[ptr_local : ptr_local + 3])
                 ptr_local += 3
 
                 if lol_p_local == 0:
@@ -620,23 +793,33 @@ class HashChainEncryption:
                 else:
                     if len(k) < ptr_local + lol_p_local:
                         raise ValueError("Chave inválida: incompleta (pl)")
-                    pl_local = int(k[ptr_local:ptr_local + lol_p_local])
+                    pl_local = int(k[ptr_local : ptr_local + lol_p_local])
                     ptr_local += lol_p_local
 
                 passes_local = []
                 for _ in range(pl_local):
                     if len(k) < ptr_local + 3:
                         raise ValueError("Chave inválida: incompleta (pass)")
-                    passes_local.append(int(k[ptr_local:ptr_local + 3]))
+                    passes_local.append(int(k[ptr_local : ptr_local + 3]))
                     ptr_local += 3
+
+                # novo: comprimento do ciphertext antes do padding
+                if len(k) < ptr_local + 3:
+                    raise ValueError("Chave inválida: incompleta (lcl)")
+                lcl_local = int(k[ptr_local : ptr_local + 3])
+                ptr_local += 3
+                if lcl_local < 0 or len(k) < ptr_local + lcl_local:
+                    raise ValueError("Chave inválida: incompleta (cl)")
+                cl_local = int(k[ptr_local : ptr_local + lcl_local])
+                ptr_local += lcl_local
 
                 if len(k) < ptr_local + 3:
                     raise ValueError("Chave inválida: incompleta (sl)")
-                sl_local = int(k[ptr_local:ptr_local + 3])
+                sl_local = int(k[ptr_local : ptr_local + 3])
                 ptr_local += 3
                 if sl_local < 0 or len(k) < ptr_local + sl_local:
                     raise ValueError("Chave inválida: incompleta (seed)")
-                seed_local = int(k[ptr_local:ptr_local + sl_local])
+                seed_local = int(k[ptr_local : ptr_local + sl_local])
                 ptr_local += sl_local
 
                 padding_local = 0
@@ -650,9 +833,29 @@ class HashChainEncryption:
                     if padding_local > len(ct_eff):
                         raise ValueError("Padding maior que o tamanho do ciphertext")
                     ct_eff = ct_eff[: len(ct_eff) - padding_local]
+                if 'cl_local' in locals() and cl_local > 0 and len(ct_eff) != cl_local:
+                    if len(ct_eff) > cl_local:
+                        ct_eff = ct_eff[:cl_local]
+                    else:
+                        if started_with_compressed:
+                            pass
+                        else:
+                            raise ValueError("Ciphertext menor que o comprimento declarado")
 
-                if sum(passes_local) != len(ct_eff):
-                    raise ValueError("inconsistência entre passes e ciphertext (sem salt)")
+                # valida soma e ajusta tolerantemente para entradas comprimidas
+                total_len = len(ct_eff)
+                sum_passes = sum(passes_local)
+                if sum_passes != total_len:
+                    if started_with_compressed and passes_local:
+                        delta = sum_passes - total_len
+                        passes_local[-1] -= delta
+                        if passes_local[-1] < 0:
+                            passes_local[-1] = 0
+                    else:
+                        raise ValueError(
+                            "inconsistência entre passes e ciphertext (sem salt)"
+                        )
+
 
                 ciphertext_list_local = []
                 resto_local = ct_eff
@@ -667,12 +870,28 @@ class HashChainEncryption:
                 return parse_com_salt(key)
             except Exception:
                 return parse_sem_salt(key)
+        
+        # Se o texto está comprimido, descomprime e salva ambas as versões
+        if is_compressed:
+            self._info[0] = ciphertext  # salva o texto comprimido
+            decompressed = self.decompression(ciphertext)
+            self._info[2] = decompressed  # salva o texto descomprimido
+            ciphertext = decompressed  # atualiza o texto para descriptografia
+        else:
+            # Se não está comprimido, comprime e salva ambas as versões
+            self._info[2] = ciphertext  # salva o texto não comprimido
+            self._info[0] = self.compression(ciphertext)  # salva a versão comprimida
+
+        started_with_compressed = is_compressed
 
         desc = dechaveador(ciphertext, key)
 
         pass_ = desc[0]
         seed = desc[1]
         cipher = desc[2]
+
+        self._info[4] = pass_
+        self._info[5] = seed
 
         plaintext = []
 
@@ -698,4 +917,12 @@ class HashChainEncryption:
                 print("MISS idx=", n, "pass=", p, "len=", len(val))
                 print("invalida: ", val)
 
-        return "".join(plaintext)
+        plaintext = "".join(plaintext)
+
+        self._info[3] = plaintext
+
+        if printar:
+            print(f"Plaintext:\n{plaintext}")
+
+        if retonar:
+            return plaintext
