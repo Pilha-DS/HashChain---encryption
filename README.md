@@ -141,4 +141,4 @@ if __name__ == "__main__":
 ```
 
 ## Licença
-Defina aqui a licença do projeto (por exemplo, MIT). Se não houver uma licença, considere adicioná-la.
+Linceça MIT
