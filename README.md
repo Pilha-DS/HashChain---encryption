@@ -5,7 +5,7 @@ HCC é um esquema de criptografia por cadeias de substituição determinísticas
 ## Sumário
 - Visão geral
 - Requisitos
-![Python Logo](https://example.com/caminho/para/logo-python.png)
+<img src="https://img.shields.io/badge/Python-3.8+-blue.svg">
 - Instalação / Setup
 - Conceitos-chave
 - Uso rápido
