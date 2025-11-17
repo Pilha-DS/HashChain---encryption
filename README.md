@@ -1,3 +1,5 @@
+<img src="https://img.shields.io/badge/Python-3.8+-blue.svg">
+
 # HashChain Encryption (HCC)
 
 HCC é um esquema de criptografia por cadeias de substituição determinísticas com inserção opcional de salt, implementado em Python. Ele gera tabelas de substituição por passe a partir de uma seed principal e permite reverter o processo com uma chave compacta que embute toda a informação necessária para a descriptografia.
@@ -5,6 +7,7 @@ HCC é um esquema de criptografia por cadeias de substituição determinísticas
 ## Sumário
 - Visão geral
 - Requisitos
+
 - Instalação / Setup
 - Conceitos-chave
 - Uso rápido
@@ -141,4 +144,4 @@ if __name__ == "__main__":
 ```
 
 ## Licença
-Defina aqui a licença do projeto (por exemplo, MIT). Se não houver uma licença, considere adicioná-la.
+Linceça MIT
